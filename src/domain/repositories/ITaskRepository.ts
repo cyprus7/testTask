@@ -1,4 +1,4 @@
-import { Task, CreateTaskInput, UpdateTaskInput } from '../entities/Task';
+import { Task, CreateTaskInput, UpdateTaskInput, TaskStatus, TaskPriority } from '../entities/Task';
 
 export interface ITaskRepository {
   create(task: CreateTaskInput): Promise<Task>;
@@ -10,8 +10,8 @@ export interface ITaskRepository {
 }
 
 export interface TaskFilters {
-  status?: string;
-  priority?: string;
+  status?: TaskStatus | string;
+  priority?: TaskPriority | string;
   dueDateFrom?: Date;
   dueDateTo?: Date;
 }

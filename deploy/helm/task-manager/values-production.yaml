@@ -1,0 +1,37 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/chernov/task-manager
+  tag: "v1.0.0"
+
+service:
+  type: ClusterIP
+  port: 3000
+
+config:
+  nodeEnv: production
+  redisHost: task-manager-redis-master
+  redisPort: 6379
+  port: 3000
+  taskNotificationQueue: task-notifications
+  dueSoonThresholdHours: 24
+
+secret:
+  create: false
+  existingSecret: task-manager-secrets
+  databaseUrlKey: DATABASE_URL
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+  hosts:
+    - host: task20251104.test.chernov.us
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - task20251104.test.chernov.us
+      secretName: task-manager-tls

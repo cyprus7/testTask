@@ -12,10 +12,16 @@ export class TaskController {
     private getTaskByIdUseCase: GetTaskByIdUseCase,
     private updateTaskUseCase: UpdateTaskUseCase,
     private deleteTaskUseCase: DeleteTaskUseCase
-  ) {}
+  ) { }
 
   async createTask(data: CreateTaskDTO) {
-    return await this.createTaskUseCase.execute(data);
+    const payload = {
+      ...data,
+      description: data.description ?? null,
+      dueDate: data.dueDate ?? null,
+    };
+
+    return await this.createTaskUseCase.execute(payload);
   }
 
   async getTasks(query: TaskQueryDTO) {

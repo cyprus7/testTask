@@ -1,0 +1,18 @@
+apiVersion: v2
+name: task-manager
+description: A Helm chart for deploying the Task Manager Bun/Elysia service
+home: https://task20251104.test.chernov.us
+maintainers:
+  - name: Task Manager Maintainers
+    email: devops@example.com
+keywords:
+  - bun
+  - elysia
+  - task-manager
+  - clean-architecture
+sources:
+  - https://github.com/your-org/task-manager
+icon: https://helm.sh/img/helm.svg
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,6 +1,6 @@
-import { eq, and, gte, lte, sql } from 'drizzle-orm';
+import { eq, and, gte, lte } from 'drizzle-orm';
 import { ITaskRepository, TaskFilters } from '../../domain/repositories/ITaskRepository';
-import { Task, CreateTaskInput, UpdateTaskInput } from '../../domain/entities/Task';
+import { Task, CreateTaskInput, UpdateTaskInput, TaskStatus, TaskPriority } from '../../domain/entities/Task';
 import { db } from '../database/connection';
 import { tasks } from '../database/schema';
 
@@ -26,10 +26,10 @@ export class TaskRepository implements ITaskRepository {
     const conditions = [];
 
     if (filters?.status) {
-      conditions.push(eq(tasks.status, filters.status as any));
+      conditions.push(eq(tasks.status, filters.status as TaskStatus));
     }
     if (filters?.priority) {
-      conditions.push(eq(tasks.priority, filters.priority as any));
+      conditions.push(eq(tasks.priority, filters.priority as TaskPriority));
     }
     if (filters?.dueDateFrom) {
       conditions.push(gte(tasks.dueDate, filters.dueDateFrom));
@@ -43,11 +43,11 @@ export class TaskRepository implements ITaskRepository {
       : db.select().from(tasks);
 
     const result = await query;
-    return result.map(this.mapToTask);
+    return result.map((r) => this.mapToTask(r));
   }
 
   async update(id: string, input: UpdateTaskInput): Promise<Task | null> {
-    const updateData: any = {
+    const updateData: Partial<Record<string, unknown>> = {
       updatedAt: new Date(),
     };
 
@@ -82,23 +82,24 @@ export class TaskRepository implements ITaskRepository {
         and(
           gte(tasks.dueDate, now),
           lte(tasks.dueDate, threshold),
-          eq(tasks.status, 'pending' as any)
+          eq(tasks.status, TaskStatus.PENDING)
         )
       );
 
-    return result.map(this.mapToTask);
+    return result.map((r) => this.mapToTask(r));
   }
 
-  private mapToTask(record: any): Task {
+  private mapToTask(record: Record<string, unknown> | undefined): Task {
+    const rec: Record<string, unknown> = record ?? {};
     return {
-      id: record.id,
-      title: record.title,
-      description: record.description,
-      status: record.status,
-      priority: record.priority,
-      dueDate: record.dueDate,
-      createdAt: record.createdAt,
-      updatedAt: record.updatedAt,
+      id: rec.id as string,
+      title: rec.title as string,
+      description: (rec.description as string) ?? null,
+      status: rec.status as TaskStatus,
+      priority: rec.priority as TaskPriority,
+      dueDate: (rec.dueDate as Date) ?? null,
+      createdAt: rec.createdAt as Date,
+      updatedAt: rec.updatedAt as Date,
     };
   }
 }
