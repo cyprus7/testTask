@@ -197,6 +197,54 @@ docker-compose logs -f
 - **Repositories**: Abstract data access
 - **Use Cases**: Application-specific business rules
 
+## ☸️ Kubernetes Deployment
+
+### Helm chart
+
+- Chart location: `deploy/helm/task-manager`
+- Default host: `task20251104.test.chernov.us`
+- Deploys the Bun/Elysia API, Service, optional Ingress, and optional HPA
+
+#### Install / upgrade
+
+```bash
+helm upgrade --install task-manager ./deploy/helm/task-manager \
+  --namespace task-manager \
+  --create-namespace
+```
+
+#### Override configuration
+
+- Copy `deploy/helm/task-manager/values.yaml` and adjust image, Redis/PostgreSQL endpoints, etc.
+- Ensure the `DATABASE_URL` secret exists. Example:
+
+  ```bash
+  kubectl create secret generic task-manager-secrets \
+    --namespace task-manager \
+    --from-literal=DATABASE_URL="postgres://<db-user>:<db-password>@<db-host>:<db-port>/<db-name>"
+  ```
+
+- To use pre-defined production values (ingress host `task20251104.test.chernov.us`), provide:
+
+  ```bash
+  helm upgrade --install task-manager ./deploy/helm/task-manager \
+    --namespace task-manager \
+    --create-namespace \
+    -f deploy/helm/task-manager/values-production.yaml
+  ```
+
+### Argo CD
+
+- Application manifest: `deploy/argocd/application-task-manager.yaml`
+- Update `spec.source.repoURL` to point to your Git repository before applying
+- Apply to the Argo CD control plane:
+
+  ```bash
+  kubectl apply -f deploy/argocd/application-task-manager.yaml -n argocd
+  ```
+
+Argo CD will sync the Helm chart (using the production values file by default) and expose the API via the provided domain.
+
 ## 🔄 Async Notifications
 
 The application includes an async notification system for tasks due soon:
@@ -214,6 +262,16 @@ The application is designed for easy testing:
 # Run tests (when implemented)
 bun test
 ```
+
+## 🤖 CI/CD
+
+GitHub Actions workflow: `.github/workflows/ci-cd.yaml`
+
+- Runs on pull requests and pushes to validate the Bun application with `bun test`
+- Builds and publishes a Docker image to GitHub Container Registry when changes land on the `main` branch
+- Uses `GITHUB_TOKEN` for registry authentication; configure repository secrets `REGISTRY_USER` and `REGISTRY_PASSWORD` if you prefer Docker Hub or another registry
+
+To consume the published image in Kubernetes, override the Helm chart `image.repository` and `image.tag` values (for example using `--set image.repository=ghcr.io/<org>/task-manager,image.tag=<git-sha>`).
 
 ## 📁 Project Structure
 
