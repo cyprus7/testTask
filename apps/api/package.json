@@ -1,0 +1,21 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "bun run app/api/index.ts",
+        "start": "bun run app/api/index.ts"
+    },
+    "dependencies": {
+        "elysia": "^1.1.0",
+        "@elysiajs/cors": "^1.1.0",
+        "drizzle-orm": "^0.33.0",
+        "postgres": "^3.4.4",
+        "redis": "^4.7.0",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@types/node": "^24.0.0",
+        "bun-types": "^1.1.0"
+    }
+}

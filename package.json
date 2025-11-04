@@ -1,40 +1,22 @@
 {
-  "name": "testtask",
-  "module": "index.ts",
-  "type": "module",
+  "name": "tmono",
   "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
-    "lint": "eslint \"src/**/*.{ts,tsx}\" --ext .ts,.tsx",
-    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit"
+    "dev": "bun run --cwd apps/api dev",
+    "dev:web": "bun --cwd apps/web run dev",
+    "dev:bot": "bun --cwd apps/tg-bot run dev",
+    "dev:all": "bun run -j3 dev:bot & bun run -j3 dev:web & bun run -j3 dev",
+    "lint": "eslint .",
+    "type-check": "tsc -b"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "^24.10.0",
-    "drizzle-kit": "^0.31.6",
-    "eslint": "^8.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "eslint-plugin-import": "^2.0.0",
-    "typescript": "^5"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "@elysiajs/cors": "^1.4.0",
-    "drizzle-orm": "^0.44.7",
-    "elysia": "^1.4.15",
-    "postgres": "^3.4.7",
-    "redis": "^5.9.0",
-    "zod": "^4.1.12"
+    "@types/node": "^24.0.0",
+    "eslint": "^8.57.0",
+    "typescript": "^5.5.0"
   }
 }
