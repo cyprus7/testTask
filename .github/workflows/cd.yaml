@@ -1,0 +1,73 @@
+name: CD
+
+on:
+  push:
+    branches: ["main", "master"]
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches: ["main", "master"]
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    env:
+      REGISTRY: ghcr.io
+      IMAGE_NAME: ${{ github.repository }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64,linux/arm64
+
+  notify-argocd:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Trigger ArgoCD Sync (if configured)
+        run: |
+          echo "Image deployed successfully with tags:"
+          echo "${{ needs.deploy.steps.meta.outputs.tags }}"
+          echo "You can configure ArgoCD webhook or API call here to trigger deployment"
+          # Example ArgoCD API call (uncomment and configure as needed):
+          # curl -X POST "$ARGOCD_SERVER/api/v1/applications/$APP_NAME/sync" \
+          #   -H "Authorization: Bearer $ARGOCD_TOKEN" \
+          #   -H "Content-Type: application/json"

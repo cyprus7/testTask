@@ -1,5 +1,8 @@
 # Task Manager API
 
+[![CI](https://github.com/cyprus7/testTask/actions/workflows/ci.yaml/badge.svg)](https://github.com/cyprus7/testTask/actions/workflows/ci.yaml)
+[![CD](https://github.com/cyprus7/testTask/actions/workflows/cd.yaml/badge.svg)](https://github.com/cyprus7/testTask/actions/workflows/cd.yaml)
+
 A backend task manager built with **Bun.js** and **Elysia.js** following **Domain-Driven Design (DDD)** and **Clean Architecture** principles.
 
 ## 🏗️ Architecture
