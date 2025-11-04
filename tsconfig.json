@@ -2,7 +2,10 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     // Keep previous project-level defaults and also include DOM libs for web packages
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
@@ -26,6 +29,9 @@
     "noPropertyAccessFromIndexSignature": false,
     "forceConsistentCasingInFileNames": true,
     // Make node and react types available for root build checks
-    "types": ["node", "@types/react"]
+    "types": [
+      "node",
+      "@types/react"
+    ]
   }
 }
