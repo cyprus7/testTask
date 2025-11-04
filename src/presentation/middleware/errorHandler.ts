@@ -2,7 +2,7 @@ import { Elysia } from 'elysia';
 import { AppError } from '../../shared/errors';
 import { ZodError } from 'zod';
 
-export const errorHandler = (app: Elysia) =>
+export const errorHandler = (app: Elysia) => {
   app.onError(({ error, set }) => {
     console.error('Error:', error);
 
@@ -40,3 +40,6 @@ export const errorHandler = (app: Elysia) =>
       },
     };
   });
+
+  return app;
+};
