@@ -1,1 +1,266 @@
-# testTask
+# Task Manager API
+
+A backend task manager built with **Bun.js** and **Elysia.js** following **Domain-Driven Design (DDD)** and **Clean Architecture** principles.
+
+## 🏗️ Architecture
+
+This project follows Clean Architecture with clear separation of concerns:
+
+### Layers
+
+1. **Domain Layer** (`src/domain/`)
+   - Contains business entities, value objects, and repository interfaces
+   - Pure business logic with no external dependencies
+
+2. **Application Layer** (`src/application/`)
+   - Use cases implementing business workflows
+   - DTOs and validation schemas
+   - Service interfaces
+
+3. **Infrastructure Layer** (`src/infrastructure/`)
+   - Database implementations (DrizzleORM + PostgreSQL)
+   - Cache implementation (Redis)
+   - Queue implementation (Redis)
+
+4. **Presentation Layer** (`src/presentation/`)
+   - HTTP controllers
+   - Routes
+   - Middleware (error handling, validation)
+
+## 🚀 Features
+
+- ✅ CRUD operations for tasks
+- ✅ Async "due soon" notifications via Redis queue
+- ✅ Redis caching for improved performance
+- ✅ Input validation using Zod
+- ✅ Centralized error handling
+- ✅ SOLID principles
+- ✅ PostgreSQL database with DrizzleORM
+- ✅ Docker support for development
+
+## 📋 Prerequisites
+
+- [Bun](https://bun.sh/) >= 1.0
+- [Docker](https://www.docker.com/) and Docker Compose
+- PostgreSQL 16 (via Docker)
+- Redis 7 (via Docker)
+
+## 🛠️ Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd testTask
+```
+
+2. Install dependencies:
+```bash
+bun install
+```
+
+3. Copy environment variables:
+```bash
+cp .env.example .env
+```
+
+4. Start Docker services (PostgreSQL + Redis):
+```bash
+bun run docker:up
+```
+
+5. Generate and push database schema:
+```bash
+bun run db:push
+```
+
+## 🏃 Running the Application
+
+### Development Mode
+```bash
+bun run dev
+```
+
+### Production Mode
+```bash
+bun run start
+```
+
+The API will be available at `http://localhost:3000`
+
+## 📚 API Endpoints
+
+### Health Check
+```http
+GET /health
+```
+
+### Tasks
+
+#### Get All Tasks
+```http
+GET /tasks?status=pending&priority=high
+```
+
+Query parameters:
+- `status` (optional): Filter by status (pending, in_progress, completed, cancelled)
+- `priority` (optional): Filter by priority (low, medium, high, urgent)
+- `dueDateFrom` (optional): Filter by due date from
+- `dueDateTo` (optional): Filter by due date to
+
+#### Get Task by ID
+```http
+GET /tasks/:id
+```
+
+#### Create Task
+```http
+POST /tasks
+Content-Type: application/json
+
+{
+  "title": "Complete project documentation",
+  "description": "Write comprehensive README and API docs",
+  "status": "pending",
+  "priority": "high",
+  "dueDate": "2024-12-31T23:59:59Z"
+}
+```
+
+#### Update Task
+```http
+PUT /tasks/:id
+Content-Type: application/json
+
+{
+  "status": "in_progress",
+  "priority": "urgent"
+}
+```
+
+#### Delete Task
+```http
+DELETE /tasks/:id
+```
+
+## 🔧 Database Management
+
+### Generate migrations
+```bash
+bun run db:generate
+```
+
+### Push schema to database
+```bash
+bun run db:push
+```
+
+### Open Drizzle Studio (Database GUI)
+```bash
+bun run db:studio
+```
+
+## 📦 Docker Commands
+
+### Start services
+```bash
+bun run docker:up
+```
+
+### Stop services
+```bash
+bun run docker:down
+```
+
+### View logs
+```bash
+docker-compose logs -f
+```
+
+## 🎯 Design Patterns & Principles
+
+### SOLID Principles
+- **Single Responsibility**: Each class has one reason to change
+- **Open/Closed**: Open for extension, closed for modification
+- **Liskov Substitution**: Interfaces can be swapped with implementations
+- **Interface Segregation**: Specific interfaces for different use cases
+- **Dependency Inversion**: Depend on abstractions, not concretions
+
+### Clean Architecture
+- **Independence**: Business logic independent of frameworks and databases
+- **Testability**: Business rules can be tested without external dependencies
+- **Framework Independence**: Not tied to Elysia.js or any specific framework
+- **Database Independence**: Can switch from PostgreSQL to any other database
+
+### DDD Concepts
+- **Entities**: Task entity with unique identity
+- **Value Objects**: TaskStatus, TaskPriority enums
+- **Repositories**: Abstract data access
+- **Use Cases**: Application-specific business rules
+
+## 🔄 Async Notifications
+
+The application includes an async notification system for tasks due soon:
+
+- Every 5 minutes, the system checks for tasks due within 24 hours
+- Tasks are enqueued to Redis queue for processing
+- Queue workers process notifications asynchronously
+- Notifications can be extended to send emails, SMS, push notifications, etc.
+
+## 🧪 Testing
+
+The application is designed for easy testing:
+
+```bash
+# Run tests (when implemented)
+bun test
+```
+
+## 📁 Project Structure
+
+```
+testTask/
+├── src/
+│   ├── domain/               # Business entities and rules
+│   │   ├── entities/         # Domain entities
+│   │   ├── repositories/     # Repository interfaces
+│   │   └── value-objects/    # Value objects
+│   ├── application/          # Application business rules
+│   │   ├── dtos/            # Data Transfer Objects
+│   │   ├── interfaces/      # Service interfaces
+│   │   └── use-cases/       # Application use cases
+│   ├── infrastructure/       # External implementations
+│   │   ├── database/        # Database schema and connection
+│   │   ├── cache/           # Redis cache implementation
+│   │   ├── queue/           # Redis queue implementation
+│   │   └── repositories/    # Repository implementations
+│   ├── presentation/         # API layer
+│   │   ├── controllers/     # HTTP controllers
+│   │   ├── middleware/      # Middleware (error handling)
+│   │   └── routes/          # Route definitions
+│   ├── shared/              # Shared utilities
+│   │   ├── config/          # Configuration
+│   │   ├── errors/          # Custom error classes
+│   │   └── container.ts     # Dependency injection
+│   └── index.ts             # Application entry point
+├── docker-compose.yml        # Docker services
+├── Dockerfile               # Docker image
+├── drizzle.config.ts        # Drizzle configuration
+├── .env.example             # Environment variables template
+└── package.json             # Dependencies and scripts
+```
+
+## 🔐 Environment Variables
+
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/taskmanager
+REDIS_HOST=localhost
+REDIS_PORT=6379
+PORT=3000
+NODE_ENV=development
+TASK_NOTIFICATION_QUEUE=task-notifications
+DUE_SOON_THRESHOLD_HOURS=24
+```
+
+## 📝 License
+
+MIT
