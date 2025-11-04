@@ -15,22 +15,23 @@ await cacheService.connect();
 await queueService.connect();
 
 // Setup notification queue processor
-queueService.process(config.TASK_NOTIFICATION_QUEUE, async (data) => {
-  console.log('📧 Processing notification for task:', data);
-  // Here you would send actual notifications (email, SMS, push, etc.)
-  // For now, we just log it
-  console.log(`Notification: Task "${data.title}" is due soon!`);
-  console.log(`Due Date: ${data.dueDate}`);
-  console.log(`Priority: ${data.priority}`);
-});
+queueService.process<{ title: string; dueDate?: string | Date; priority?: string }>(
+  config.TASK_NOTIFICATION_QUEUE,
+  (data) => {
+    console.log('📧 Processing notification for task:', data);
+    // Here you would send actual notifications (email, SMS, push, etc.)
+    // For now, we just log it
+    console.log(`Notification: Task "${data.title}" is due soon!`);
+    console.log(`Due Date: ${String(data.dueDate)}`);
+    console.log(`Priority: ${data.priority}`);
+  }
+);
 
 // Schedule periodic check for due soon tasks (every 5 minutes)
-setInterval(async () => {
-  try {
-    await checkDueSoonTasksUseCase.execute();
-  } catch (error) {
+setInterval(() => {
+  void checkDueSoonTasksUseCase.execute().catch((error) => {
     console.error('Error checking due soon tasks:', error);
-  }
+  });
 }, 5 * 60 * 1000);
 
 // Create the Elysia app
@@ -50,16 +51,20 @@ console.log(`📊 Environment: ${config.NODE_ENV}`);
 console.log(`🔍 Health check: http://localhost:${app.server?.port}/health`);
 
 // Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\n👋 Shutting down gracefully...');
-  await cacheService.disconnect();
-  await queueService.disconnect();
-  process.exit(0);
+process.on('SIGINT', () => {
+  void (async () => {
+    console.log('\n👋 Shutting down gracefully...');
+    await cacheService.disconnect();
+    await queueService.disconnect();
+    process.exit(0);
+  })();
 });
 
-process.on('SIGTERM', async () => {
-  console.log('\n👋 Shutting down gracefully...');
-  await cacheService.disconnect();
-  await queueService.disconnect();
-  process.exit(0);
+process.on('SIGTERM', () => {
+  void (async () => {
+    console.log('\n👋 Shutting down gracefully...');
+    await cacheService.disconnect();
+    await queueService.disconnect();
+    process.exit(0);
+  })();
 });

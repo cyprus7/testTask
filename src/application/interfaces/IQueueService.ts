@@ -1,4 +1,4 @@
 export interface IQueueService {
-  enqueue(queueName: string, data: any): Promise<void>;
-  process(queueName: string, handler: (data: any) => Promise<void>): void;
+  enqueue<T>(queueName: string, data: T): Promise<void>;
+  process<T>(queueName: string, handler: (data: T) => void | Promise<void>): void;
 }

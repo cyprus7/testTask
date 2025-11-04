@@ -1,5 +1,6 @@
 import { Elysia } from 'elysia';
 import { AppError } from '../../shared/errors';
+import { ZodError } from 'zod';
 
 export const errorHandler = (app: Elysia) =>
   app.onError(({ error, set }) => {
@@ -17,14 +18,14 @@ export const errorHandler = (app: Elysia) =>
     }
 
     // Handle Zod validation errors
-    if (error.name === 'ZodError') {
+    if (error instanceof ZodError) {
       set.status = 400;
       return {
         success: false,
         error: {
           message: 'Validation failed',
           statusCode: 400,
-          details: error.errors,
+          details: error.issues,
         },
       };
     }

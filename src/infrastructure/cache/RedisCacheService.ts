@@ -27,10 +27,12 @@ export class RedisCacheService implements ICacheService {
   async get<T>(key: string): Promise<T | null> {
     await this.connect();
     const value = await this.client.get(key);
-    return value ? JSON.parse(value) : null;
+    if (!value) return null;
+    const parsed = JSON.parse(value) as unknown;
+    return parsed as T;
   }
 
-  async set(key: string, value: any, ttl?: number): Promise<void> {
+  async set<T>(key: string, value: T, ttl?: number): Promise<void> {
     await this.connect();
     const serialized = JSON.stringify(value);
     if (ttl) {
