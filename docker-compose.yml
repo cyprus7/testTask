@@ -29,6 +29,32 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build: ./apps/api
+    env_file:
+      - ./apps/api/.env.local
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "3000:3000"
+
+  tg-bot:
+    build: ./apps/tg-bot
+    env_file:
+      - ./apps/tg-bot/.env.local
+    depends_on:
+      - api
+
+  web:
+    build: ./apps/web
+    env_file:
+      - ./apps/web/.env.local
+    depends_on:
+      - api
+    ports:
+      - "3001:3001"
+
 volumes:
   postgres_data:
   redis_data:

@@ -1,20 +1,20 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    // Environment setup & latest features
+    // Keep previous project-level defaults and also include DOM libs for web packages
     "lib": [
-      "ESNext"
+      "ESNext",
+      "DOM"
     ],
     "target": "ESNext",
     "module": "Preserve",
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
-    // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
-    // Best practices
     "strict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -24,10 +24,14 @@
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
-    // Stricter diagnostics
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": false,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    // Make node and react types available for root build checks
+    "types": [
+      "node",
+      "@types/react"
+    ]
   }
 }

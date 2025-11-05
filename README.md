@@ -11,21 +11,21 @@ This project follows Clean Architecture with clear separation of concerns:
 
 ### Layers
 
-1. **Domain Layer** (`src/domain/`)
+1. **Domain Layer** (`apps/api/app/api/src/domain/`)
    - Contains business entities, value objects, and repository interfaces
    - Pure business logic with no external dependencies
 
-2. **Application Layer** (`src/application/`)
+2. **Application Layer** (`apps/api/app/api/src/application/`)
    - Use cases implementing business workflows
    - DTOs and validation schemas
    - Service interfaces
 
-3. **Infrastructure Layer** (`src/infrastructure/`)
+3. **Infrastructure Layer** (`apps/api/app/api/src/infrastructure/`)
    - Database implementations (DrizzleORM + PostgreSQL)
    - Cache implementation (Redis)
    - Queue implementation (Redis)
 
-4. **Presentation Layer** (`src/presentation/`)
+4. **Presentation Layer** (`apps/api/app/api/src/presentation/`)
    - HTTP controllers
    - Routes
    - Middleware (error handling, validation)
@@ -280,34 +280,41 @@ To consume the published image in Kubernetes, override the Helm chart `image.rep
 
 ```
 testTask/
-├── src/
-│   ├── domain/               # Business entities and rules
-│   │   ├── entities/         # Domain entities
-│   │   ├── repositories/     # Repository interfaces
-│   │   └── value-objects/    # Value objects
-│   ├── application/          # Application business rules
-│   │   ├── dtos/            # Data Transfer Objects
-│   │   ├── interfaces/      # Service interfaces
-│   │   └── use-cases/       # Application use cases
-│   ├── infrastructure/       # External implementations
-│   │   ├── database/        # Database schema and connection
-│   │   ├── cache/           # Redis cache implementation
-│   │   ├── queue/           # Redis queue implementation
-│   │   └── repositories/    # Repository implementations
-│   ├── presentation/         # API layer
-│   │   ├── controllers/     # HTTP controllers
-│   │   ├── middleware/      # Middleware (error handling)
-│   │   └── routes/          # Route definitions
-│   ├── shared/              # Shared utilities
-│   │   ├── config/          # Configuration
-│   │   ├── errors/          # Custom error classes
-│   │   └── container.ts     # Dependency injection
-│   └── index.ts             # Application entry point
+├── apps/
+│   └── api/
+│       ├── app/
+│       │   └── api/
+│       │       └── src/
+│       │           ├── domain/               # Business entities and rules
+│       │           │   ├── entities/         # Domain entities
+│       │           │   ├── repositories/     # Repository interfaces
+│       │           │   └── value-objects/    # Value objects
+│       │           ├── application/          # Application business rules
+│       │           │   ├── dtos/            # Data Transfer Objects
+│       │           │   ├── interfaces/      # Service interfaces
+│       │           │   └── use-cases/       # Application use cases
+│       │           ├── infrastructure/       # External implementations
+│       │           │   ├── database/        # Database schema and connection
+│       │           │   ├── cache/           # Redis cache implementation
+│       │           │   ├── queue/           # Redis queue implementation
+│       │           │   └── repositories/    # Repository implementations
+│       │           ├── presentation/         # API layer
+│       │           │   ├── controllers/     # HTTP controllers
+│       │           │   ├── middleware/      # Middleware (error handling)
+│       │           │   └── routes/          # Route definitions
+│       │           ├── shared/              # Shared utilities
+│       │           │   ├── config/          # Configuration
+│       │           │   ├── errors/          # Custom error classes
+│       │           │   └── container.ts     # Dependency injection
+│       │           └── index.ts             # Application entry point
+│       ├── Dockerfile               # Docker image
+│       ├── package.json             # Dependencies and scripts
+│       ├── tsconfig.json            # TypeScript configuration
+│       └── .env                     # Environment variables
 ├── docker-compose.yml        # Docker services
-├── Dockerfile               # Docker image
 ├── drizzle.config.ts        # Drizzle configuration
 ├── .env.example             # Environment variables template
-└── package.json             # Dependencies and scripts
+└── package.json             # Root dependencies and scripts
 ```
 
 ## 🔐 Environment Variables

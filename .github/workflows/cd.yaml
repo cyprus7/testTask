@@ -1,61 +1,143 @@
-name: CD
+name: CD Pipeline
 
 on:
-  push:
-    branches: ["main", "master"]
   workflow_run:
     workflows: ["CI"]
-    types:
-      - completed
-    branches: ["main", "master"]
+    types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   packages: write
+
+concurrency:
+  group: ${{ format('{0}-{1}', github.workflow, github.event.workflow_run.head_branch) }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    # only run when CI succeeded and branch is main or develop
+    if: ${{ github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.head_branch == 'main' || github.event.workflow_run.head_branch == 'develop') }}
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+
     env:
-      REGISTRY: ghcr.io
-      IMAGE_NAME: ${{ github.repository }}
+      # choose env dir based on branch
+      ENV_DIR: ${{ github.event.workflow_run.head_branch == 'main' && 'deploy/helm/task-manager' || 'deploy/helm/task-manager' }}
+      TAG_ENV: ${{ github.event.workflow_run.head_branch == 'main' && 'prod' || 'sandbox' }}
+      SHA_TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+
     steps:
-      - name: Checkout
+      - name: Checkout repo at the CI commit (head_sha)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+          persist-credentials: true
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Switch to the original branch
+        run: |
+          git checkout ${{ github.event.workflow_run.head_branch }}
 
-      - name: Log in to registry
+      - name: Set GHCR_REPO (lowercase)
+        run: echo "GHCR_REPO=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Login to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,prefix={{branch}}-
-            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Build and push image
-        id: build
-        uses: docker/build-push-action@v5
+      - name: Build & push backend image
+        uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./apps/api
+          file: ./apps/api/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.GHCR_REPO }}/backend:${{ env.SHA_TAG }}
+            ${{ env.GHCR_REPO }}/backend:${{ env.TAG_ENV }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SHA_TAG }}
+
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/web
+          file: ./apps/web/Dockerfile
+          push: true
+          build-args: |
+            NEXT_PUBLIC_API_URL=/api
+          tags: |
+            ${{ env.GHCR_REPO }}/frontend:${{ env.SHA_TAG }}
+            ${{ env.GHCR_REPO }}/frontend:${{ env.TAG_ENV }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SHA_TAG }}
+
+      - name: Build & push tgbot image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./apps/tg-bot
+          file: ./apps/tg-bot/Dockerfile
+          push: true
+          tags: |
+            ${{ env.GHCR_REPO }}/tgbot:${{ env.SHA_TAG }}
+            ${{ env.GHCR_REPO }}/tgbot:${{ env.TAG_ENV }}
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ env.SHA_TAG }}
+
+      - name: Install mikefarah yq (v4)
+        run: |
+          sudo wget -qO /usr/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/bin/yq
+          yq --version
+
+      - name: Bump image tag in Helm values (backend)
+        run: |
+          VALUES="${ENV_DIR}/values.yaml"
+          mkdir -p "$(dirname "$VALUES")"
+          touch "$VALUES"
+          GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
+          yq -i '
+            .image.repository = strenv(GHCR_REPO) |
+            .image.tag  = strenv(SHA_TAG)    |
+            del(.image.repository_old)
+          ' "$VALUES"
+
+      - name: Commit & push changes (values.yaml) with [skip ci]
+        run: |
+          git config user.name "ci-cd-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add "${ENV_DIR}/values.yaml"
+          if git commit -m "deploy: ${SHA_TAG} -> ${ENV_DIR} [skip ci]"; then
+            git push origin ${{ github.event.workflow_run.head_branch }}
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Bump task-manager production Helm values (image.repository + image.tag)
+        run: |
+          FILE="deploy/helm/task-manager/values-production.yaml"
+          # Ensure file exists
+          test -f "$FILE" || touch "$FILE"
+          GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
+          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+
+      - name: Commit & push values-production.yaml bump [skip ci]
+        run: |
+          git config user.name "ci-cd-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add deploy/helm/task-manager/values-production.yaml
+          if git commit -m "deploy: bump task-manager image -> ${SHA_TAG} [skip ci]"; then
+            git push origin ${{ github.event.workflow_run.head_branch }}
+          else
+            echo "No changes to commit"
+          fi
 
   notify-argocd:
     needs: deploy
@@ -64,10 +146,5 @@ jobs:
     steps:
       - name: Trigger ArgoCD Sync (if configured)
         run: |
-          echo "Image deployed successfully with tags:"
-          echo "${{ needs.deploy.steps.meta.outputs.tags }}"
-          echo "You can configure ArgoCD webhook or API call here to trigger deployment"
-          # Example ArgoCD API call (uncomment and configure as needed):
-          # curl -X POST "$ARGOCD_SERVER/api/v1/applications/$APP_NAME/sync" \
-          #   -H "Authorization: Bearer $ARGOCD_TOKEN" \
-          #   -H "Content-Type: application/json"
+          echo "Image deployed successfully. Tags: ${{ env.SHA_TAG }}"
+          echo "If you have ArgoCD configured, add an API call or webhook here to trigger sync."

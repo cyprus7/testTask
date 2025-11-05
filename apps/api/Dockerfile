@@ -9,7 +9,7 @@ COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile --production
 
 # Copy source code
-COPY src ./src
+COPY app/api/src ./app/api/src
 COPY tsconfig.json ./
 
 # Create non-root user for security
@@ -26,4 +26,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3000/health || exit 1
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["bun", "run", "app/api/src/index.ts"]

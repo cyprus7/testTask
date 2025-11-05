@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "task-manager.labels" . | nindent 4 }}
 spec:
+  revisionHistoryLimit: 5
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
@@ -75,6 +76,10 @@ spec:
           {{- if .Values.readinessProbe.enabled }}
           readinessProbe:
             {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.startupProbe "enabled") | nindent 12 }}
           {{- end }}
           {{- with .Values.resources }}
           resources:
