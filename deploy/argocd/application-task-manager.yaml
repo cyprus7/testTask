@@ -8,7 +8,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-org/task-manager.git
+    repoURL: https://github.com/cyprus7/testtask.git
     targetRevision: main
     path: deploy/helm/task-manager
     helm:
