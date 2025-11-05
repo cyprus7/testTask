@@ -1,18 +1,31 @@
-# Multi-stage build for Next.js
-FROM node:18-alpine AS builder
+# Multi-stage build for Next.js in a monorepo
+FROM node:20-alpine AS builder
 WORKDIR /app
-# Copy package files (works if package-lock.json is absent)
-COPY package*.json ./
-COPY . .
-# Use npm ci when lockfile exists, otherwise fall back to npm install
-RUN npm ci --silent || npm install --silent
-RUN npm run build
 
-FROM node:18-alpine AS runner
+# Copy root package manifests (if present) and the app package separately.
+# When build context is the repo root, this ensures we install workspace deps.
+COPY package.json package-lock.json ./
+COPY apps/web/package.json ./apps/web/package.json
+
+# Copy workspace packages and app sources (only what's needed)
+COPY packages ./packages
+COPY apps/web ./apps/web
+
+# Install dependencies at the repo root so workspaces are resolved.
+# Use npm install to ensure we can update lockfile inside the build context
+# (ci would fail if the checked-in lockfile is stale).
+RUN npm install --silent
+
+# Build the web workspace
+RUN npm --workspace=apps/web run build
+
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/package.json ./package.json
+
+# Copy only the built output and the app package.json/node_modules required to run
+COPY --from=builder /app/apps/web/.next ./.next
+COPY --from=builder /app/apps/web/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 EXPOSE 3001
 CMD ["npm", "run", "start"]
