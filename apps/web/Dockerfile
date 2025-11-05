@@ -6,6 +6,8 @@ WORKDIR /app
 # When build context is the repo root, this ensures we install workspace deps.
 COPY package.json package-lock.json ./
 COPY apps/web/package.json ./apps/web/package.json
+COPY tsconfig.base.json ./
+COPY tsconfig.json ./
 
 # Copy workspace packages and app sources (only what's needed)
 COPY packages ./packages

@@ -8,7 +8,7 @@
         "start": "next start -p ${PORT:-3001}"
     },
     "dependencies": {
-        "@shared/contracts": "workspace:*",
+        "@shared/contracts": "file:../../packages/shared-contracts",
         "@twa-dev/sdk": "^7.0.0",
         "next": "^14.2.5",
         "react": "^18.3.1",
