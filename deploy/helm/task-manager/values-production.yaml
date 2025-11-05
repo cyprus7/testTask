@@ -1,13 +1,10 @@
 replicaCount: 2
-
 image:
-  repository: ghcr.io/chernov/task-manager
-  tag: "v1.0.0"
-
+  repository: ghcr.io/cyprus7/testtask
+  tag: "293f0806dd0ed7ce1b83888350d5d9eefebe43fc"
 service:
   type: ClusterIP
   port: 3000
-
 config:
   nodeEnv: production
   redisHost: task-manager-redis-master
@@ -15,12 +12,10 @@ config:
   port: 3000
   taskNotificationQueue: task-notifications
   dueSoonThresholdHours: 24
-
 secret:
   create: false
   existingSecret: task-manager-secrets
   databaseUrlKey: DATABASE_URL
-
 ingress:
   enabled: true
   className: nginx
