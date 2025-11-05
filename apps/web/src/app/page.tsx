@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import WebApp from "@twa-dev/sdk";
-import { TelegramAuthRequestSchema } from "@contracts/auth";
+import { TelegramAuthRequestSchema } from "@shared/contracts/auth";
 
 export default function Home() {
   const [ready, setReady] = useState(false);

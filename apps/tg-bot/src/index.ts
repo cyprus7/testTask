@@ -1,5 +1,5 @@
 import { Bot, InlineKeyboard } from "grammy";
-import { loadEnv, optionalString, optionalUrl, z } from "@shared-config";
+import { loadEnv, optionalString, optionalUrl, z } from "@shared/config";
 
 const env = loadEnv(
     z.object({

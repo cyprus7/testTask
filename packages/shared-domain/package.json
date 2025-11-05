@@ -1,5 +1,5 @@
 {
-    "name": "@domain",
+    "name": "@shared/domain",
     "version": "0.0.0",
     "type": "module",
     "exports": {

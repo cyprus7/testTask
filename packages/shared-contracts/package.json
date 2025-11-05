@@ -1,5 +1,5 @@
 {
-    "name": "@contracts",
+    "name": "@shared/contracts",
     "version": "0.0.0",
     "type": "module",
     "exports": {

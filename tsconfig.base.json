@@ -6,13 +6,13 @@
         "rootDir": ".",
         "baseUrl": ".",
         "paths": {
-            "@domain/*": [
+            "@shared/domain/*": [
                 "packages/shared-domain/src/*"
             ],
-            "@contracts/*": [
+            "@shared/contracts/*": [
                 "packages/shared-contracts/src/*"
             ],
-            "@shared-config/*": [
+            "@shared/config/*": [
                 "packages/shared-config/src/*"
             ]
         },

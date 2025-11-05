@@ -1,9 +1,11 @@
 # Multi-stage build for Next.js
 FROM node:18-alpine AS builder
 WORKDIR /app
-COPY package.json package-lock.json ./
+# Copy package files (works if package-lock.json is absent)
+COPY package*.json ./
 COPY . .
-RUN npm ci --silent
+# Use npm ci when lockfile exists, otherwise fall back to npm install
+RUN npm ci --silent || npm install --silent
 RUN npm run build
 
 FROM node:18-alpine AS runner

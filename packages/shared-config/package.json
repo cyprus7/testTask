@@ -1,5 +1,5 @@
 {
-    "name": "@shared-config",
+    "name": "@shared/config",
     "version": "0.0.0",
     "type": "module",
     "exports": {
