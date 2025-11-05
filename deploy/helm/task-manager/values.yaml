@@ -1,23 +1,17 @@
 nameOverride: ""
 fullnameOverride: ""
-
 replicaCount: 1
-
 image:
-  repository: ghcr.io/your-org/task-manager
+  repository: ghcr.io/cyprus7/testtask
   pullPolicy: IfNotPresent
-  tag: "latest"
-
+  tag: "293f0806dd0ed7ce1b83888350d5d9eefebe43fc"
 imagePullSecrets: []
-
 serviceAccount:
   create: true
   annotations: {}
   name: ""
-
 podAnnotations: {}
 podLabels: {}
-
 # Безопасные дефолты (можно переопределить/обнулить в окружениях)
 podSecurityContext:
   runAsUser: 10001
@@ -28,11 +22,9 @@ securityContext:
   readOnlyRootFilesystem: true
   capabilities:
     drop: ["ALL"]
-
 service:
   type: ClusterIP
   port: 3000
-
 resources:
   requests:
     cpu: 100m
@@ -40,7 +32,6 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
-
 livenessProbe:
   enabled: true
   httpGet:
@@ -51,7 +42,6 @@ livenessProbe:
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-
 startupProbe:
   enabled: true
   httpGet:
@@ -59,7 +49,6 @@ startupProbe:
     port: http
   failureThreshold: 30
   periodSeconds: 5
-
 readinessProbe:
   enabled: true
   httpGet:
@@ -70,18 +59,15 @@ readinessProbe:
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-
 autoscaling:
   enabled: false
   minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
-
 nodeSelector: {}
 tolerations: []
 affinity: {}
-
 config:
   port: 3000
   nodeEnv: production
@@ -89,16 +75,13 @@ config:
   redisPort: 6379
   taskNotificationQueue: task-notifications
   dueSoonThresholdHours: 24
-
 secret:
   create: false
   existingSecret: ""
   databaseUrlKey: DATABASE_URL
   databaseUrl: ""
-
 extraEnv: []
 extraEnvFrom: []
-
 ingress:
   enabled: true
   className: "nginx"
@@ -113,7 +96,6 @@ ingress:
     - hosts:
         - task20251104.test.chernov.us
       secretName: task-manager-tls
-
 metrics:
   enabled: false
   serviceMonitor:
@@ -122,11 +104,9 @@ metrics:
     interval: 30s
     scrapeTimeout: 10s
     additionalLabels: {}
-
 pdb:
   enabled: true
   minAvailable: 1
-
 networkPolicy:
   enabled: false
   # Пример ingress from: только из ingress-nginx
