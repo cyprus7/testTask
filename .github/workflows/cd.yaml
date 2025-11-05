@@ -120,6 +120,25 @@ jobs:
             echo "No changes to commit"
           fi
 
+      - name: Bump task-manager production Helm values (image.repository + image.tag)
+        run: |
+          FILE="deploy/helm/task-manager/values-production.yaml"
+          # Ensure file exists
+          test -f "$FILE" || touch "$FILE"
+          GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
+          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+
+      - name: Commit & push values-production.yaml bump [skip ci]
+        run: |
+          git config user.name "ci-cd-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add deploy/helm/task-manager/values-production.yaml
+          if git commit -m "deploy: bump task-manager image -> ${SHA_TAG} [skip ci]"; then
+            git push origin ${{ github.event.workflow_run.head_branch }}
+          else
+            echo "No changes to commit"
+          fi
+
   notify-argocd:
     needs: deploy
     runs-on: ubuntu-latest
