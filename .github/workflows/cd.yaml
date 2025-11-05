@@ -82,7 +82,8 @@ jobs:
       - name: Build & push tgbot image
         uses: docker/build-push-action@v6
         with:
-          context: ./apps/tg-bot
+          # Build tgbot from repo root so workspace packages are available
+          context: .
           file: ./apps/tg-bot/Dockerfile
           push: true
           tags: |
