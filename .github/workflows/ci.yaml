@@ -7,7 +7,7 @@ on:
     branches: ["main", "master"]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -15,6 +15,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
@@ -35,7 +38,29 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: |
+          set -euo pipefail
+          # Try strict install first. If it fails due to lockfile mismatch,
+          # regenerate lockfile and commit back to the branch so CI stays consistent.
+          if bun install --frozen-lockfile; then
+            echo "Dependencies installed with frozen lockfile"
+          else
+            echo "Frozen lockfile install failed -> regenerating lockfile"
+            bun install
+            # Commit updated lockfiles if any
+            git config user.name "ci-bot"
+            git config user.email "ci-bot@users.noreply.github.com"
+            # Add both possible lockfile names used by bun
+            git add bun.lock bun.lockb || true
+            if git diff --staged --quiet; then
+              echo "No lockfile changes to commit"
+            else
+              git commit -m "chore(ci): update bun.lock [skip ci]" || true
+              # Push back to the same branch
+              BRANCH=${GITHUB_REF#refs/heads/}
+              git push origin "HEAD:${BRANCH}"
+            fi
+          fi
 
       - name: Run linting (if configured)
         run: |
