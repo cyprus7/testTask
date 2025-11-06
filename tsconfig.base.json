@@ -23,7 +23,8 @@
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "types": [
-            "node"
+            "node",
+            "pino"
         ]
     },
     "exclude": [
