@@ -19,6 +19,9 @@ secret:
   create: false
   existingSecret: task-manager-secrets
   databaseUrlKey: DATABASE_URL
+migrations:
+  enabled: true
+  ttlSecondsAfterFinished: 600
 ingress:
   enabled: true
   className: nginx

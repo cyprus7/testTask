@@ -82,6 +82,27 @@ secret:
   redisUrl: ""
 extraEnv: []
 extraEnvFrom: []
+migrations:
+  enabled: false
+  hook: true
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 300
+  command:
+    - sh
+    - -c
+    - bunx drizzle-kit migrate --config ./drizzle.config.ts
+  args: []
+  annotations: {}
+  labels: {}
+  podAnnotations: {}
+  podLabels: {}
+  extraEnv: []
+  extraEnvFrom: []
+  resources: {}
+  securityContext: ~
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
 ingress:
   enabled: true
   className: "nginx"

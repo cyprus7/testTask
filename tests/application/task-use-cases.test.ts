@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'bun:test';
-import { CreateTaskUseCase } from '../../apps/api/app/api/src/application/use-cases/CreateTaskUseCase';
-import { UpdateTaskUseCase } from '../../apps/api/app/api/src/application/use-cases/UpdateTaskUseCase';
-import { DeleteTaskUseCase } from '../../apps/api/app/api/src/application/use-cases/DeleteTaskUseCase';
+import { CreateTaskUseCase } from '../../apps/api/src/application/use-cases/CreateTaskUseCase';
+import { UpdateTaskUseCase } from '../../apps/api/src/application/use-cases/UpdateTaskUseCase';
+import { DeleteTaskUseCase } from '../../apps/api/src/application/use-cases/DeleteTaskUseCase';
 import {
   Task,
   TaskPriority,
   TaskStatus,
   CreateTaskInput,
   UpdateTaskInput,
-} from '../../apps/api/app/api/src/domain/entities/Task';
-import { ITaskRepository, TaskFilters } from '../../apps/api/app/api/src/domain/repositories/ITaskRepository';
-import { ICacheService } from '../../apps/api/app/api/src/application/interfaces/ICacheService';
-import { NotFoundError } from '../../apps/api/app/api/src/shared/errors';
+} from '../../apps/api/src/domain/entities/Task';
+import { ITaskRepository, TaskFilters } from '../../apps/api/src/domain/repositories/ITaskRepository';
+import { ICacheService } from '../../apps/api/src/application/interfaces/ICacheService';
+import { NotFoundError } from '../../apps/api/src/shared/errors';
 
 class InMemoryTaskRepository implements ITaskRepository {
   private tasks = new Map<string, Task>();

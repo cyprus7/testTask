@@ -11,21 +11,21 @@ This project follows Clean Architecture with clear separation of concerns:
 
 ### Layers
 
-1. **Domain Layer** (`apps/api/app/api/src/domain/`)
+1. **Domain Layer** (`apps/api/src/domain/`)
    - Contains business entities, value objects, and repository interfaces
    - Pure business logic with no external dependencies
 
-2. **Application Layer** (`apps/api/app/api/src/application/`)
+2. **Application Layer** (`apps/api/src/application/`)
    - Use cases implementing business workflows
    - DTOs and validation schemas
    - Service interfaces
 
-3. **Infrastructure Layer** (`apps/api/app/api/src/infrastructure/`)
+3. **Infrastructure Layer** (`apps/api/src/infrastructure/`)
    - Database implementations (DrizzleORM + PostgreSQL)
    - Cache implementation (Redis)
    - Queue implementation (Redis)
 
-4. **Presentation Layer** (`apps/api/app/api/src/presentation/`)
+4. **Presentation Layer** (`apps/api/src/presentation/`)
    - HTTP controllers
    - Routes
    - Middleware (error handling, validation)

@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -33,27 +35,16 @@ services:
     build: ./apps/api
     env_file:
       - ./apps/api/.env.local
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/taskmanager
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["sh", "-c", "bunx drizzle-kit migrate --config ./drizzle.config.ts && bun run index.ts"]
     ports:
       - "3000:3000"
-
-  tg-bot:
-    build: ./apps/tg-bot
-    env_file:
-      - ./apps/tg-bot/.env.local
-    depends_on:
-      - api
-
-  web:
-    build: ./apps/web
-    env_file:
-      - ./apps/web/.env.local
-    depends_on:
-      - api
-    ports:
-      - "3001:3001"
 
 volumes:
   postgres_data:
