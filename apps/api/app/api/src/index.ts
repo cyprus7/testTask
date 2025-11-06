@@ -4,24 +4,26 @@ import { config } from './shared/config';
 import { container } from './shared/container';
 import { createTaskRoutes } from './presentation/routes/taskRoutes';
 import { errorHandler } from './presentation/middleware/errorHandler';
+import { authMiddlewareForTasks } from './presentation/middleware/telegramAuthMiddleware';
 
 // Initialize services
 const cacheService = container.getCacheService();
 const queueService = container.getQueueService();
 const checkDueSoonTasksUseCase = container.getCheckDueSoonTasksUseCase();
+const taskRepository = container.getTaskRepository();
 
 // Connect to Redis services
 await cacheService.connect();
 await queueService.connect();
 
 // Setup notification queue processor
-queueService.process<{ title: string; dueDate?: string | Date; priority?: string }>(
+queueService.process<{ ownerId: number; taskId: string; title: string; dueDate?: string | Date; priority?: string }>(
   config.TASK_NOTIFICATION_QUEUE,
   (data) => {
     console.log('📧 Processing notification for task:', data);
     // Here you would send actual notifications (email, SMS, push, etc.)
     // For now, we just log it
-    console.log(`Notification: Task "${data.title}" is due soon!`);
+    console.log(`Notification: Task "${data.title}" is due soon for owner ${data.ownerId}!`);
     console.log(`Due Date: ${String(data.dueDate)}`);
     console.log(`Priority: ${data.priority}`);
   }
@@ -29,15 +31,25 @@ queueService.process<{ title: string; dueDate?: string | Date; priority?: string
 
 // Schedule periodic check for due soon tasks (every 5 minutes)
 setInterval(() => {
-  void checkDueSoonTasksUseCase.execute().catch((error) => {
-    console.error('Error checking due soon tasks:', error);
-  });
+  void (async () => {
+    try {
+      const ownerIds = await taskRepository.getDistinctOwnerIds();
+
+      await Promise.all(
+        ownerIds.map((ownerId) => checkDueSoonTasksUseCase.execute(ownerId))
+      );
+      // TODO: Replace with a dedicated multi-tenant scheduler when an owner registry is available.
+    } catch (error) {
+      console.error('Error checking due soon tasks:', error);
+    }
+  })();
 }, 5 * 60 * 1000);
 
 // Create the Elysia app
 const app = new Elysia()
   .use(cors())
   .use(errorHandler)
+  .use(authMiddlewareForTasks)
   .get('/health', () => ({
     success: true,
     message: 'Task Manager API is running',

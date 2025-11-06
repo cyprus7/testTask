@@ -14,29 +14,29 @@ export class TaskController {
     private deleteTaskUseCase: DeleteTaskUseCase
   ) { }
 
-  async createTask(data: CreateTaskDTO) {
+  async createTask(ownerId: number, data: CreateTaskDTO) {
     const payload = {
       ...data,
       description: data.description ?? null,
       dueDate: data.dueDate ?? null,
     };
 
-    return await this.createTaskUseCase.execute(payload);
+    return await this.createTaskUseCase.execute(ownerId, payload);
   }
 
-  async getTasks(query: TaskQueryDTO) {
-    return await this.getTasksUseCase.execute(query);
+  async getTasks(ownerId: number, query: TaskQueryDTO) {
+    return await this.getTasksUseCase.execute(ownerId, query);
   }
 
-  async getTaskById(id: string) {
-    return await this.getTaskByIdUseCase.execute(id);
+  async getTaskById(ownerId: number, id: string) {
+    return await this.getTaskByIdUseCase.execute(ownerId, id);
   }
 
-  async updateTask(id: string, data: UpdateTaskDTO) {
-    return await this.updateTaskUseCase.execute(id, data);
+  async updateTask(ownerId: number, id: string, data: UpdateTaskDTO) {
+    return await this.updateTaskUseCase.execute(ownerId, id, data);
   }
 
-  async deleteTask(id: string) {
-    await this.deleteTaskUseCase.execute(id);
+  async deleteTask(ownerId: number, id: string) {
+    await this.deleteTaskUseCase.execute(ownerId, id);
   }
 }

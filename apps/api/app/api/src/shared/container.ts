@@ -67,6 +67,10 @@ export class Container {
   public getCheckDueSoonTasksUseCase() {
     return this.checkDueSoonTasksUseCase;
   }
+
+  public getTaskRepository() {
+    return this.taskRepository;
+  }
 }
 
 export const container = new Container();

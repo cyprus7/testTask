@@ -17,7 +17,7 @@ class InMemoryTaskRepository implements ITaskRepository {
   private tasks = new Map<string, Task>();
   private idCounter = 0;
 
-  async create(task: CreateTaskInput): Promise<Task> {
+  async create(task: CreateTaskInput & { ownerId: number }): Promise<Task> {
     const now = new Date();
     const createdTask: Task = {
       id: `task-${++this.idCounter}`,
@@ -30,17 +30,44 @@ class InMemoryTaskRepository implements ITaskRepository {
     return createdTask;
   }
 
-  async findById(id: string): Promise<Task | null> {
-    return this.tasks.get(id) ?? null;
+  async findById(ownerId: number, id: string): Promise<Task | null> {
+    const task = this.tasks.get(id);
+    if (!task || task.ownerId !== ownerId) {
+      return null;
+    }
+
+    return task;
   }
 
-  async findAll(_filters?: TaskFilters): Promise<Task[]> {
-    return Array.from(this.tasks.values());
+  async findAll(ownerId: number, filters?: TaskFilters): Promise<Task[]> {
+    return Array.from(this.tasks.values()).filter((task) => {
+      if (task.ownerId !== ownerId) {
+        return false;
+      }
+
+      if (filters?.status && task.status !== filters.status) {
+        return false;
+      }
+
+      if (filters?.priority && task.priority !== filters.priority) {
+        return false;
+      }
+
+      if (filters?.dueDateFrom && (!task.dueDate || task.dueDate < filters.dueDateFrom)) {
+        return false;
+      }
+
+      if (filters?.dueDateTo && (!task.dueDate || task.dueDate > filters.dueDateTo)) {
+        return false;
+      }
+
+      return true;
+    });
   }
 
-  async update(id: string, task: UpdateTaskInput): Promise<Task | null> {
+  async update(ownerId: number, id: string, task: UpdateTaskInput): Promise<Task | null> {
     const existing = this.tasks.get(id);
-    if (!existing) {
+    if (!existing || existing.ownerId !== ownerId) {
       return null;
     }
 
@@ -54,22 +81,31 @@ class InMemoryTaskRepository implements ITaskRepository {
     return updatedTask;
   }
 
-  async delete(id: string): Promise<boolean> {
+  async delete(ownerId: number, id: string): Promise<boolean> {
+    const existing = this.tasks.get(id);
+    if (!existing || existing.ownerId !== ownerId) {
+      return false;
+    }
+
     return this.tasks.delete(id);
   }
 
-  async findDueSoonTasks(hours: number): Promise<Task[]> {
+  async findDueSoonTasks(ownerId: number, hours: number): Promise<Task[]> {
     const now = Date.now();
     const threshold = hours * 60 * 60 * 1000;
 
     return Array.from(this.tasks.values()).filter((task) => {
-      if (!task.dueDate) {
+      if (task.ownerId !== ownerId || !task.dueDate) {
         return false;
       }
 
       const dueTime = task.dueDate.getTime();
       return dueTime >= now && dueTime <= now + threshold;
     });
+  }
+
+  async getDistinctOwnerIds(): Promise<number[]> {
+    return Array.from(new Set(Array.from(this.tasks.values()).map((task) => task.ownerId)));
   }
 }
 
@@ -91,7 +127,7 @@ class FakeCacheService implements ICacheService {
   }
 }
 
-const baseTaskInput: CreateTaskInput = {
+const baseTaskInput: Omit<CreateTaskInput, 'ownerId'> = {
   title: 'Initial task',
   description: 'A sample task',
   status: TaskStatus.PENDING,
@@ -104,20 +140,23 @@ describe('Task use cases', () => {
     const repository = new InMemoryTaskRepository();
     const cache = new FakeCacheService();
     const createTask = new CreateTaskUseCase(repository, cache);
+    const ownerId = 123;
 
-    const task = await createTask.execute(baseTaskInput);
+    const task = await createTask.execute(ownerId, baseTaskInput);
 
     expect(task.id).toBeDefined();
-    expect(cache.deletedKeys).toContain('tasks:all');
+    expect(cache.deletedKeys).toContain(`task:${ownerId}:${task.id}`);
+    expect(cache.deletedKeys).toContain(`tasks:all:${ownerId}:${JSON.stringify({})}`);
   });
 
   it('throws a NotFoundError when updating a non-existent task', async () => {
     const repository = new InMemoryTaskRepository();
     const cache = new FakeCacheService();
     const updateTask = new UpdateTaskUseCase(repository, cache);
+    const ownerId = 456;
 
     await expect(
-      updateTask.execute('missing-task', { title: 'Updated title' })
+      updateTask.execute(ownerId, 'missing-task', { title: 'Updated title' })
     ).rejects.toBeInstanceOf(NotFoundError);
   });
 
@@ -126,16 +165,17 @@ describe('Task use cases', () => {
     const cache = new FakeCacheService();
     const createTask = new CreateTaskUseCase(repository, cache);
     const updateTask = new UpdateTaskUseCase(repository, cache);
+    const ownerId = 789;
 
-    const existing = await createTask.execute(baseTaskInput);
+    const existing = await createTask.execute(ownerId, baseTaskInput);
 
-    const updated = await updateTask.execute(existing.id, {
+    const updated = await updateTask.execute(ownerId, existing.id, {
       status: TaskStatus.COMPLETED,
     });
 
     expect(updated.status).toBe(TaskStatus.COMPLETED);
-    expect(cache.deletedKeys).toContain(`task:${existing.id}`);
-    expect(cache.deletedKeys).toContain('tasks:all');
+    expect(cache.deletedKeys).toContain(`task:${ownerId}:${existing.id}`);
+    expect(cache.deletedKeys).toContain(`tasks:all:${ownerId}:${JSON.stringify({})}`);
   });
 
   it('deletes an existing task and invalidates cache entries', async () => {
@@ -143,11 +183,12 @@ describe('Task use cases', () => {
     const cache = new FakeCacheService();
     const createTask = new CreateTaskUseCase(repository, cache);
     const deleteTask = new DeleteTaskUseCase(repository, cache);
+    const ownerId = 321;
 
-    const existing = await createTask.execute(baseTaskInput);
-    await deleteTask.execute(existing.id);
+    const existing = await createTask.execute(ownerId, baseTaskInput);
+    await deleteTask.execute(ownerId, existing.id);
 
-    expect(cache.deletedKeys).toContain(`task:${existing.id}`);
-    expect(cache.deletedKeys).toContain('tasks:all');
+    expect(cache.deletedKeys).toContain(`task:${ownerId}:${existing.id}`);
+    expect(cache.deletedKeys).toContain(`tasks:all:${ownerId}:${JSON.stringify({})}`);
   });
 });

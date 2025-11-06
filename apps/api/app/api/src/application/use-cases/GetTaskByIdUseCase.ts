@@ -9,21 +9,21 @@ export class GetTaskByIdUseCase {
     private cacheService: ICacheService
   ) {}
 
-  async execute(id: string): Promise<Task> {
-    const cacheKey = `task:${id}`;
-    
+  async execute(ownerId: number, id: string): Promise<Task> {
+    const cacheKey = `task:${ownerId}:${id}`;
+
     // Try to get from cache
     const cached = await this.cacheService.get<Task>(cacheKey);
     if (cached) {
       return cached;
     }
-    
+
     // Get from database
-    const task = await this.taskRepository.findById(id);
+    const task = await this.taskRepository.findById(ownerId, id);
     if (!task) {
       throw new NotFoundError(`Task with id ${id} not found`);
     }
-    
+
     // Cache for 5 minutes
     await this.cacheService.set(cacheKey, task, 300);
     

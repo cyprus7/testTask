@@ -38,3 +38,10 @@ export class InternalServerError extends AppError {
     Object.setPrototypeOf(this, InternalServerError.prototype);
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message: string = 'Unauthorized') {
+    super(message, 401);
+    Object.setPrototypeOf(this, UnauthorizedError.prototype);
+  }
+}

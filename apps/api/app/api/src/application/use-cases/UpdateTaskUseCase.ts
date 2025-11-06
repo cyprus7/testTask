@@ -9,17 +9,19 @@ export class UpdateTaskUseCase {
     private cacheService: ICacheService
   ) {}
 
-  async execute(id: string, input: UpdateTaskInput): Promise<Task> {
-    const task = await this.taskRepository.update(id, input);
-    
+  async execute(ownerId: number, id: string, input: UpdateTaskInput): Promise<Task> {
+    const task = await this.taskRepository.update(ownerId, id, input);
+
     if (!task) {
       throw new NotFoundError(`Task with id ${id} not found`);
     }
-    
+
     // Invalidate cache
-    await this.cacheService.delete(`task:${id}`);
-    await this.cacheService.delete('tasks:all');
-    
+    await Promise.all([
+      this.cacheService.delete(`task:${ownerId}:${id}`),
+      this.cacheService.delete(`tasks:all:${ownerId}:${JSON.stringify({})}`),
+    ]);
+
     return task;
   }
 }
