@@ -53,17 +53,17 @@ spec:
             - name: REDIS_HOST
               value: {{ .Values.config.redisHost | quote }}
             - name: REDIS_PORT
-              value: {{ printf "%d" .Values.config.redisPort | quote }}
+              value: {{ toString .Values.config.redisPort | quote }}
             - name: REDIS_DB
-              value: {{ printf "%d" (.Values.config.redisDb | default 0) | quote }}
+              value: {{ toString (.Values.config.redisDb | default 0) | quote }}
             - name: PORT
-              value: {{ printf "%d" .Values.config.port | quote }}
+              value: {{ toString .Values.config.port | quote }}
             - name: NODE_ENV
               value: {{ .Values.config.nodeEnv | quote }}
             - name: TASK_NOTIFICATION_QUEUE
               value: {{ .Values.config.taskNotificationQueue | quote }}
             - name: DUE_SOON_THRESHOLD_HOURS
-              value: {{ printf "%d" .Values.config.dueSoonThresholdHours | quote }}
+              value: {{ toString .Values.config.dueSoonThresholdHours | quote }}
             {{- with .Values.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
