@@ -20,6 +20,8 @@
         },
         "strict": true,
         "noEmit": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
         "types": [
             "node"
         ]
