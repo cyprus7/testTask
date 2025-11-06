@@ -5,6 +5,8 @@
         "moduleResolution": "Bundler",
         "rootDir": ".",
         "baseUrl": ".",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "paths": {
             "@shared/domain/*": [
                 "packages/shared-domain/src/*"

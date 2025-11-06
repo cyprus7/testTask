@@ -69,9 +69,21 @@ jobs:
           else
             echo "No lint script found, skipping..."
           fi
+          # Lint tg-bot separately
+          if [ -d "apps/tg-bot" ]; then
+            cd apps/tg-bot
+            if npm run --silent lint 2>/dev/null; then
+              npm run lint
+            fi
+          fi
 
       - name: Run tests
         run: bun test
+
+      - name: Run tg-bot tests
+        run: |
+          cd apps/tg-bot
+          npm test
 
       - name: Build check
         run: |
@@ -85,3 +97,9 @@ jobs:
               echo "TypeScript not available for build check"
             fi
           fi
+
+      - name: Build tg-bot
+        run: |
+          cd apps/tg-bot
+          npm ci
+          npm run build

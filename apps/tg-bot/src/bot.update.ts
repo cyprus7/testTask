@@ -1,4 +1,4 @@
-import { Update, Hears, Ctx } from 'nestjs-telegraf'
+import { Update, Hears } from 'nestjs-telegraf'
 import { Context, Markup } from 'telegraf'
 import { ConfigService } from '@nestjs/config'
 
@@ -11,7 +11,7 @@ export class BotUpdate {
     }
 
     @Hears('/start')
-    async onStart(@Ctx() ctx: Context) {
+    async onStart(ctx: Context) {
         await ctx.reply(
             'Привет! Это бот для открытия WebApp.',
             Markup.inlineKeyboard([
@@ -21,7 +21,7 @@ export class BotUpdate {
     }
 
     @Hears('/menu')
-    async onMenu(@Ctx() ctx: Context) {
+    async onMenu(ctx: Context) {
         await ctx.reply('WebApp:', {
             reply_markup: {
                 keyboard: [[{ text: "Open App", web_app: { url: this.webAppUrl } }]],

@@ -42,7 +42,7 @@ type PinoHttpOptions = NonNullable<LoggerModuleOptions['pinoHttp']>
                         const hdrXReq = normalizeHeader(headers?.['x-request-id'])
                         return hdrTrace ?? hdrXReq ?? randomUUID()
                     },
-                    customLogLevel: (req: unknown, res?: { statusCode?: number } | null, err?: unknown) => {
+                    customLogLevel: (_req: unknown, res?: { statusCode?: number } | null, err?: unknown) => {
                         if (err || (res && (res.statusCode ?? 0) >= 500)) return 'error'
                         return 'info'
                     },
