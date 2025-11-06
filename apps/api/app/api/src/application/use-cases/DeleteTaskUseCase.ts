@@ -8,15 +8,17 @@ export class DeleteTaskUseCase {
     private cacheService: ICacheService
   ) {}
 
-  async execute(id: string): Promise<void> {
-    const deleted = await this.taskRepository.delete(id);
-    
+  async execute(ownerId: number, id: string): Promise<void> {
+    const deleted = await this.taskRepository.delete(ownerId, id);
+
     if (!deleted) {
       throw new NotFoundError(`Task with id ${id} not found`);
     }
-    
+
     // Invalidate cache
-    await this.cacheService.delete(`task:${id}`);
-    await this.cacheService.delete('tasks:all');
+    await Promise.all([
+      this.cacheService.delete(`task:${ownerId}:${id}`),
+      this.cacheService.delete(`tasks:all:${ownerId}:${JSON.stringify({})}`),
+    ]);
   }
 }

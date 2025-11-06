@@ -147,14 +147,16 @@ DELETE /tasks/:id
 
 ## 🔧 Database Management
 
+> **Note:** Set the `DATABASE_URL` environment variable before running any Drizzle commands. Existing rows created before owner scoping will be backfilled with `owner_id = 0` during migration—adjust this value for your environment if needed.
+
 ### Generate migrations
 ```bash
 bun run db:generate
 ```
 
-### Push schema to database
+### Apply migrations
 ```bash
-bun run db:push
+bun run db:migrate
 ```
 
 ### Open Drizzle Studio (Database GUI)

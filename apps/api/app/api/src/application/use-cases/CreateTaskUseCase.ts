@@ -8,12 +8,22 @@ export class CreateTaskUseCase {
     private cacheService: ICacheService
   ) {}
 
-  async execute(input: CreateTaskInput): Promise<Task> {
-    const task = await this.taskRepository.create(input);
-    
-    // Invalidate cache
-    await this.cacheService.delete('tasks:all');
-    
+  async execute(ownerId: number, input: Omit<CreateTaskInput, 'ownerId'>): Promise<Task> {
+    const payload: CreateTaskInput & { ownerId: number } = {
+      ...input,
+      ownerId,
+    };
+
+    const task = await this.taskRepository.create(payload);
+
+    const itemCacheKey = `task:${ownerId}:${task.id}`;
+    const listCacheKey = `tasks:all:${ownerId}:${JSON.stringify({})}`;
+
+    await Promise.all([
+      this.cacheService.delete(itemCacheKey),
+      this.cacheService.delete(listCacheKey),
+    ]);
+
     return task;
   }
 }
