@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/cyprus7/testtask/frontend
-  tag: "aa8c81d93c3d8e49449ac61d2e3bf88b98b5f10d"
+  tag: "0fdf0cc3782ad76cb3b34aaf6e129aa1eaa8e208"
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
@@ -22,7 +22,6 @@ env:
   PORT: "3000"
   HOST: "0.0.0.0"
   NEXT_PUBLIC_API_URL: "/api"
-
 livenessProbe:
   enabled: true
   httpGet:
@@ -33,7 +32,6 @@ livenessProbe:
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-
 readinessProbe:
   enabled: true
   httpGet:
@@ -44,7 +42,6 @@ readinessProbe:
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
-
 startupProbe:
   enabled: false
   httpGet:
@@ -52,7 +49,6 @@ startupProbe:
     port: 3000
   failureThreshold: 30
   periodSeconds: 5
-
 resources:
   requests: {cpu: 50m, memory: 64Mi}
   limits: {cpu: 300m, memory: 256Mi}
