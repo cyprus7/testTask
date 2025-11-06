@@ -226,7 +226,8 @@ helm upgrade --install task-manager ./deploy/helm/task-manager \
   ```bash
   kubectl create secret generic task-manager-secrets \
     --namespace task-manager \
-    --from-literal=DATABASE_URL="postgres://<db-user>:<db-password>@<db-host>:<db-port>/<db-name>"
+    --from-literal=DATABASE_URL="postgres://<db-user>:<db-password>@<db-host>:<db-port>/<db-name>" \
+    --from-literal=REDIS_URL="redis://<redis-host>:6379/0"
   ```
 
 - To use pre-defined production values (ingress host `task20251104.test.chernov.us`), provide:
@@ -323,8 +324,7 @@ testTask/
 
 ```env
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/taskmanager
-REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_URL=redis://localhost:6379/0
 PORT=3000
 NODE_ENV=development
 TASK_NOTIFICATION_QUEUE=task-notifications
