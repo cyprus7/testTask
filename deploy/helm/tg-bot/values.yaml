@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/cyprus7/testtask/tgbot
-  tag: "c4bba553b955d7be72778e28c19d9dee34653421"
+  tag: "bf518e65b8f4c33742a38588bfa319a53b53425e"
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
