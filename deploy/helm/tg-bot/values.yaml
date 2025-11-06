@@ -1,12 +1,10 @@
 image:
-  repository: ghcr.io/cyprus7/testtask/tgbot
-  tag: "latest"
+  repository: ghcr.io/cyprus7/testtask
+  tag: "2454e1ea930498c6b4111b0c9251830812e16caa"
   pullPolicy: IfNotPresent
-
 service:
   type: ClusterIP
   port: 8080
-
 ingress:
   enabled: true
   className: "nginx"
@@ -20,7 +18,6 @@ ingress:
   tls:
     - hosts: [task20251104.test.chernov.us]
       secretName: task-manager-tls
-
 env:
   PUBLIC_URL: "https://task20251104.test.chernov.us"
   WEBHOOK_PATH: "/tg/webhook"
