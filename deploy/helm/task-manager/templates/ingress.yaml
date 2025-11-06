@@ -1,14 +1,18 @@
 {{- if .Values.ingress.enabled }}
+{{- $base := .Values.ingress.apiBasePath | default "/api" | trimSuffix "/" }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "task-manager.fullname" . }}
   labels:
     {{- include "task-manager.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    # ВКЛЮЧАЕМ regex и вырезаем префикс /api → /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
@@ -28,14 +32,13 @@ spec:
     - host: {{ .host | quote }}
       http:
         paths:
-          {{- range .paths }}
-          - path: {{ $.Values.ingress.apiBasePath | default .path }}
-            pathType: {{ .pathType }}
+          # regex-путь: ^/api(/|$)(.*)
+          - path: {{ printf "%s(/|$)(.*)" $base }}
+            pathType: Prefix
             backend:
               service:
                 name: {{ include "task-manager.fullname" $ }}
                 port:
                   number: {{ $.Values.service.port }}
-          {{- end }}
     {{- end }}
 {{- end }}
