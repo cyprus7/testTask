@@ -1,0 +1,21 @@
+image:
+  repository: ghcr.io/your-org/frontend
+  tag: "latest"
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 3000
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: task20251104.test.chernov.us
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts: [task20251104.test.chernov.us]
+      secretName: task-manager-tls
+resources:
+  requests: { cpu: 50m, memory: 64Mi }
+  limits:   { cpu: 300m, memory: 256Mi }

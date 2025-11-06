@@ -54,6 +54,8 @@ spec:
               value: {{ .Values.config.redisHost | quote }}
             - name: REDIS_PORT
               value: {{ printf "%d" .Values.config.redisPort | quote }}
+            - name: REDIS_DB
+              value: {{ printf "%d" (.Values.config.redisDb | default 0) | quote }}
             - name: PORT
               value: {{ printf "%d" .Values.config.port | quote }}
             - name: NODE_ENV

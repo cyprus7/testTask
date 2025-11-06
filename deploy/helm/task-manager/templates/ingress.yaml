@@ -29,7 +29,7 @@ spec:
       http:
         paths:
           {{- range .paths }}
-          - path: {{ .path }}
+          - path: {{ $.Values.ingress.apiBasePath | default .path }}
             pathType: {{ .pathType }}
             backend:
               service:

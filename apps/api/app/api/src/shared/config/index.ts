@@ -4,6 +4,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_DB: z.coerce.number().default(0),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   TASK_NOTIFICATION_QUEUE: z.string().default('task-notifications'),

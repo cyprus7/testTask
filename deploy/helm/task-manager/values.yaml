@@ -71,8 +71,10 @@ affinity: {}
 config:
   port: 3000
   nodeEnv: production
-  redisHost: redis
+  # общий Redis из ns databases
+  redisHost: redis-master.databases.svc.cluster.local
   redisPort: 6379
+  redisDb: 1
   taskNotificationQueue: task-notifications
   dueSoonThresholdHours: 24
 secret:
@@ -85,6 +87,7 @@ extraEnvFrom: []
 ingress:
   enabled: true
   className: "nginx"
+  apiBasePath: "/api"
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-production
   hosts:

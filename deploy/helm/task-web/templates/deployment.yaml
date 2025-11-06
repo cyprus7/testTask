@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "task-web.fullname" . | default (printf "%s-web" .Release.Name) }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: task-web
+  template:
+    metadata:
+      labels:
+        app: task-web
+    spec:
+      containers:
+        - name: task-web
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "/api"

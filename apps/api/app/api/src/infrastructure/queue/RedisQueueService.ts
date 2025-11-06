@@ -9,10 +9,8 @@ export class RedisQueueService implements IQueueService {
 
   constructor() {
     this.client = createClient({
-      socket: {
-        host: config.REDIS_HOST,
-        port: config.REDIS_PORT,
-      },
+      socket: { host: config.REDIS_HOST, port: config.REDIS_PORT },
+      database: config.REDIS_DB,
     });
 
     this.client.on('error', (err) => console.error('Redis Queue Error:', err));

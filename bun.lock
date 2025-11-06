@@ -31,8 +31,8 @@
       "name": "tg-bot",
       "version": "0.0.0",
       "dependencies": {
-        "@contracts": "workspace:*",
-        "@shared-config": "workspace:*",
+        "@shared/config": "file:../../packages/shared-config",
+        "@shared/contracts": "file:../../packages/shared-contracts",
         "grammy": "^1.26.1",
         "undici": "^6.18.0",
       },
@@ -41,7 +41,7 @@
       "name": "web",
       "version": "0.0.0",
       "dependencies": {
-        "@contracts": "workspace:*",
+        "@shared/contracts": "file:../../packages/shared-contracts",
         "@twa-dev/sdk": "^7.0.0",
         "next": "^14.2.5",
         "react": "^18.3.1",
@@ -49,30 +49,26 @@
       },
     },
     "packages/shared-config": {
-      "name": "@shared-config",
+      "name": "@shared/config",
       "version": "0.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
     },
     "packages/shared-contracts": {
-      "name": "@contracts",
+      "name": "@shared/contracts",
       "version": "0.0.0",
       "dependencies": {
         "zod": "^3.23.8",
       },
     },
     "packages/shared-domain": {
-      "name": "@domain",
+      "name": "@shared/domain",
       "version": "0.0.0",
     },
   },
   "packages": {
     "@borewit/text-codec": ["@borewit/text-codec@0.1.1", "", {}, "sha512-5L/uBxmjaCIX5h8Z+uu+kA9BQLkc/Wl06UGR5ajNRxu+/XjonB5i8JpgFMrPj3LXTCPA0pv8yxUvbUi+QthGGA=="],
-
-    "@contracts": ["@contracts@workspace:packages/shared-contracts"],
-
-    "@domain": ["@domain@workspace:packages/shared-domain"],
 
     "@elysiajs/cors": ["@elysiajs/cors@1.4.0", "", { "peerDependencies": { "elysia": ">= 1.4.0" } }, "sha512-pb0SCzBfFbFSYA/U40HHO7R+YrcXBJXOWgL20eSViK33ol1e20ru2/KUaZYo5IMUn63yaTJI/bQERuQ+77ND8g=="],
 
@@ -130,7 +126,11 @@
 
     "@redis/time-series": ["@redis/time-series@1.1.0", "", { "peerDependencies": { "@redis/client": "^1.0.0" } }, "sha512-c1Q99M5ljsIuc4YdaCwfUEXsofakb9c8+Zse2qxTadu8TalLXuAESzLvFAvNVbkmSlvlzIQOLpBCmWI9wTOt+g=="],
 
-    "@shared-config": ["@shared-config@workspace:packages/shared-config"],
+    "@shared/config": ["@shared/config@workspace:packages/shared-config"],
+
+    "@shared/contracts": ["@shared/contracts@workspace:packages/shared-contracts"],
+
+    "@shared/domain": ["@shared/domain@workspace:packages/shared-domain"],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.34.41", "", {}, "sha512-6gS8pZzSXdyRHTIqoqSVknxolr1kzfy4/CeDnrzsVz8TTIWUbOBr6gnzOmTYJ3eXQNh4IYHIGi5aIL7sOZ2G/g=="],
 
@@ -435,5 +435,11 @@
     "yocto-queue": ["yocto-queue@0.1.0", "", {}, "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="],
 
     "zod": ["zod@3.25.76", "", {}, "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="],
+
+    "tg-bot/@shared/config": ["@shared/config@file:packages/shared-config", { "dependencies": { "zod": "^3.23.8" } }],
+
+    "tg-bot/@shared/contracts": ["@shared/contracts@file:packages/shared-contracts", { "dependencies": { "zod": "^3.23.8" } }],
+
+    "web/@shared/contracts": ["@shared/contracts@file:packages/shared-contracts", { "dependencies": { "zod": "^3.23.8" } }],
   }
 }
