@@ -4,7 +4,7 @@ replicaCount: 1
 image:
   repository: ghcr.io/cyprus7/testtask/backend
   pullPolicy: IfNotPresent
-  tag: "9047cfb99c04337696329199c71d55c1ee17d3e3"
+  tag: "b8b74c4f45f976c0f23180306658bdd9360afd8a"
 imagePullSecrets: []
 serviceAccount:
   create: true
