@@ -13,5 +13,9 @@ COPY apps/tg-bot ./apps/tg-bot
 RUN npm install --silent
 
 WORKDIR /app/apps/tg-bot
-EXPOSE 3002
-CMD ["node", "./src/index.js"]
+
+# Build the NestJS app
+RUN npm run build
+
+EXPOSE 8080
+CMD ["npm", "run", "start:prod"]
