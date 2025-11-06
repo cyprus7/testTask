@@ -141,6 +141,44 @@ jobs:
             echo "No changes to commit"
           fi
 
+      - name: Bump task-web Helm values (image.repository + image.tag)
+        run: |
+          FILE="deploy/helm/task-web/values.yaml"
+          # Ensure file exists
+          test -f "$FILE" || touch "$FILE"
+          GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
+          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+
+      - name: Commit & push task-web values bump [skip ci]
+        run: |
+          git config user.name "ci-cd-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add deploy/helm/task-web/values.yaml
+          if git commit -m "deploy: bump task-web image -> ${SHA_TAG} [skip ci]"; then
+            git push origin ${{ github.event.workflow_run.head_branch }}
+          else
+            echo "No changes to commit"
+          fi
+
+      - name: Bump tg-bot Helm values (image.repository + image.tag)
+        run: |
+          FILE="deploy/helm/tg-bot/values.yaml"
+          # Ensure file exists
+          test -f "$FILE" || touch "$FILE"
+          GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
+          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+
+      - name: Commit & push tg-bot values bump [skip ci]
+        run: |
+          git config user.name "ci-cd-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add deploy/helm/tg-bot/values.yaml
+          if git commit -m "deploy: bump tg-bot image -> ${SHA_TAG} [skip ci]"; then
+            git push origin ${{ github.event.workflow_run.head_branch }}
+          else
+            echo "No changes to commit"
+          fi
+
   notify-argocd:
     needs: deploy
     runs-on: ubuntu-latest

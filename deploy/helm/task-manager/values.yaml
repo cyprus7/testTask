@@ -89,7 +89,7 @@ ingress:
   className: "nginx"
   apiBasePath: "/api"
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
+    cert-manager.io/cluster-issuer: letsencrypt
   hosts:
     - host: task20251104.test.chernov.us
       paths:

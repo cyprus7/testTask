@@ -1,27 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: task-manager
+  name: task-web
   namespace: argocd
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
+  finalizers: [resources-finalizer.argocd.argoproj.io]
 spec:
   project: default
   source:
     repoURL: https://github.com/cyprus7/testtask.git
     targetRevision: main
-    path: deploy/helm/task-manager
-    helm:
-      valueFiles:
-        - values-production.yaml
+    path: deploy/helm/task-web
   destination:
     server: https://kubernetes.default.svc
     namespace: botstage
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+    automated: {prune: true, selfHeal: true}
+    syncOptions: ["CreateNamespace=true","ServerSideApply=true"]
   revisionHistoryLimit: 10

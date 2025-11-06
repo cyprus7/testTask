@@ -1,10 +1,12 @@
 image:
-  repository: ghcr.io/cyprus7/testtask/frontend
+  repository: ghcr.io/cyprus7/testtask/tgbot
   tag: "latest"
   pullPolicy: IfNotPresent
+
 service:
   type: ClusterIP
-  port: 3000
+  port: 8080
+
 ingress:
   enabled: true
   className: "nginx"
@@ -13,11 +15,13 @@ ingress:
   hosts:
     - host: task20251104.test.chernov.us
       paths:
-        - path: /
+        - path: /tg/webhook
           pathType: Prefix
   tls:
     - hosts: [task20251104.test.chernov.us]
       secretName: task-manager-tls
-resources:
-  requests: { cpu: 50m, memory: 64Mi }
-  limits:   { cpu: 300m, memory: 256Mi }
+
+env:
+  PUBLIC_URL: "https://task20251104.test.chernov.us"
+  WEBHOOK_PATH: "/tg/webhook"
+  # BOT_TOKEN will be sourced from a secret

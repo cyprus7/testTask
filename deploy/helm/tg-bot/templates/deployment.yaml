@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tg-bot.fullname" . | default (printf "%s-tgbot" .Release.Name) }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: tg-bot }
+  template:
+    metadata:
+      labels: { app: tg-bot }
+    spec:
+      containers:
+        - name: tg-bot
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [{ containerPort: {{ .Values.service.port }} }]
+          env:
+            - name: PUBLIC_URL
+              value: {{ .Values.env.PUBLIC_URL | quote }}
+            - name: WEBHOOK_PATH
+              value: {{ .Values.env.WEBHOOK_PATH | quote }}
+            - name: BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: tgbot-secrets
+                  key: BOT_TOKEN
