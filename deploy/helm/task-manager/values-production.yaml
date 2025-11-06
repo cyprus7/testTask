@@ -1,7 +1,7 @@
 replicaCount: 2
 image:
   repository: ghcr.io/cyprus7/testtask/backend
-  tag: "0fdf0cc3782ad76cb3b34aaf6e129aa1eaa8e208"
+  tag: "37e208e39a1c1b177b07928d73f3f7a3fd687be8"
 service:
   type: ClusterIP
   port: 3000
