@@ -72,9 +72,9 @@ config:
   port: 3000
   nodeEnv: production
   # общий Redis из ns databases
-  redisHost: redis-master.databases.svc.cluster.local
-  redisPort: 6379
-  redisDb: 1
+  # Use a single REDIS_URL. In production this should be provided from a secret
+  # (see secret.redisUrl / secret.redisUrlKey below). Example: redis://host:6379/1
+  redisUrl: "redis://redis-master.databases.svc.cluster.local:6379/1"
   taskNotificationQueue: task-notifications
   dueSoonThresholdHours: 24
 secret:
@@ -82,6 +82,11 @@ secret:
   existingSecret: ""
   databaseUrlKey: DATABASE_URL
   databaseUrl: ""
+  # Optional Redis URL secret key and value. When using helm to create the
+  # secret, set `secret.redisUrl` to the raw URL and `secret.redisUrlKey` to
+  # the key name to store it under (default: REDIS_URL).
+  redisUrlKey: REDIS_URL
+  redisUrl: ""
 extraEnv: []
 extraEnvFrom: []
 ingress:

@@ -2,9 +2,10 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
-  REDIS_HOST: z.string().default('localhost'),
-  REDIS_PORT: z.coerce.number().default(6379),
-  REDIS_DB: z.coerce.number().default(0),
+  // Use a single REDIS_URL (e.g. redis://host:6379/0). In production this will
+  // be provided from a secret (similar to DATABASE_URL). Keep a sensible
+  // local default for dev.
+  REDIS_URL: z.string().url().default('redis://localhost:6379/0'),
   PORT: z.coerce.number().default(3000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   TASK_NOTIFICATION_QUEUE: z.string().default('task-notifications'),

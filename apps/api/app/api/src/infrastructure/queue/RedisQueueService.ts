@@ -8,9 +8,9 @@ export class RedisQueueService implements IQueueService {
   private processing: Map<string, boolean> = new Map();
 
   constructor() {
+    // Use a single REDIS_URL for configuration (from secret in prod).
     this.client = createClient({
-      socket: { host: config.REDIS_HOST, port: config.REDIS_PORT },
-      database: config.REDIS_DB,
+      url: config.REDIS_URL,
     });
 
     this.client.on('error', (err) => console.error('Redis Queue Error:', err));

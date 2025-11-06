@@ -7,9 +7,10 @@ export class RedisCacheService implements ICacheService {
   private connected: boolean = false;
 
   constructor() {
+    // Prefer URL-based configuration. `config.REDIS_URL` may be like
+    // redis://host:6379/0 and is provided from secrets in production.
     this.client = createClient({
-      socket: { host: config.REDIS_HOST, port: config.REDIS_PORT },
-      database: config.REDIS_DB,
+      url: config.REDIS_URL,
     });
 
     this.client.on('error', (err) => console.error('Redis Client Error:', err));
