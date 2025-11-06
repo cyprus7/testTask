@@ -3,12 +3,13 @@ import { TaskController } from '../controllers/TaskController';
 import { CreateTaskSchema, UpdateTaskSchema, TaskQuerySchema } from '../../application/dtos/TaskDTO';
 import { UnauthorizedError } from '../../shared/errors';
 
-const requireOwnerId = (ctx: { userId?: number }): number => {
-  if (typeof ctx.userId !== 'number') {
+const requireOwnerId = (ctx: unknown): number => {
+  const maybeUserId = (ctx as { userId?: unknown })?.userId;
+  if (typeof maybeUserId !== 'number') {
     throw new UnauthorizedError();
   }
 
-  return ctx.userId;
+  return maybeUserId;
 };
 
 export const createTaskRoutes = (controller: TaskController) =>

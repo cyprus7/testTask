@@ -4,7 +4,8 @@
     "type": "module",
     "scripts": {
         "dev": "bun run app/api/index.ts",
-        "start": "bun run app/api/index.ts"
+        "start": "bun run app/api/index.ts",
+        "build": "tsc -p tsconfig.build.json"
     },
     "dependencies": {
         "elysia": "^1.1.0",
