@@ -1,6 +1,6 @@
 replicaCount: 2
 image:
-  repository: ghcr.io/cyprus7/testtask
+  repository: ghcr.io/cyprus7/testtask/backend
   tag: "2454e1ea930498c6b4111b0c9251830812e16caa"
 service:
   type: ClusterIP

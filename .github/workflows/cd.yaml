@@ -106,7 +106,7 @@ jobs:
           touch "$VALUES"
           GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
           yq -i '
-            .image.repository = strenv(GHCR_REPO) |
+            .image.repository = (strenv(GHCR_REPO) + "/backend") |
             .image.tag  = strenv(SHA_TAG)    |
             del(.image.repository_old)
           ' "$VALUES"
@@ -128,7 +128,7 @@ jobs:
           # Ensure file exists
           test -f "$FILE" || touch "$FILE"
           GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
-          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+          yq -i '.image.repository = (strenv(GHCR_REPO) + "/backend") | .image.tag = strenv(SHA_TAG)' "$FILE"
 
       - name: Commit & push values-production.yaml bump [skip ci]
         run: |
@@ -147,7 +147,7 @@ jobs:
           # Ensure file exists
           test -f "$FILE" || touch "$FILE"
           GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
-          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+          yq -i '.image.repository = (strenv(GHCR_REPO) + "/frontend") | .image.tag = strenv(SHA_TAG)' "$FILE"
 
       - name: Commit & push task-web values bump [skip ci]
         run: |
@@ -166,7 +166,7 @@ jobs:
           # Ensure file exists
           test -f "$FILE" || touch "$FILE"
           GHCR_REPO="${GHCR_REPO}" SHA_TAG="${SHA_TAG}" \
-          yq -i '.image.repository = strenv(GHCR_REPO) | .image.tag = strenv(SHA_TAG)' "$FILE"
+          yq -i '.image.repository = (strenv(GHCR_REPO) + "/tgbot") | .image.tag = strenv(SHA_TAG)' "$FILE"
 
       - name: Commit & push tg-bot values bump [skip ci]
         run: |

@@ -2,7 +2,7 @@ nameOverride: ""
 fullnameOverride: ""
 replicaCount: 1
 image:
-  repository: ghcr.io/cyprus7/testtask
+  repository: ghcr.io/cyprus7/testtask/backend
   pullPolicy: IfNotPresent
   tag: "2454e1ea930498c6b4111b0c9251830812e16caa"
 imagePullSecrets: []
