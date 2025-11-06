@@ -9,8 +9,9 @@ service:
   port: 3000
 config:
   nodeEnv: production
-  redisHost: task-manager-redis-master
+  redisHost: redis-master.databases.svc.cluster.local
   redisPort: 6379
+  redisDb: 1
   port: 3000
   taskNotificationQueue: task-notifications
   dueSoonThresholdHours: 24
