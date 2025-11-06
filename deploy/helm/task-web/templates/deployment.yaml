@@ -17,7 +17,40 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.service.port }}
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+
+          # ==== ENV ====
           env:
+            # Порт/хост берём из values (дефолт 3000/0.0.0.0)
+            - name: PORT
+              value: {{ .Values.env.PORT | default (printf "%d" .Values.service.port) | quote }}
+            - name: HOST
+              value: {{ .Values.env.HOST | default "0.0.0.0" | quote }}
+            # Публичный путь до API
             - name: NEXT_PUBLIC_API_URL
-              value: "/api"
+              value: {{ .Values.env.NEXT_PUBLIC_API_URL | default "/api" | quote }}
+
+          # ==== Пробы ====
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            {{- /* выкидываем флаг enabled, прокидываем остальное «как есть» */ -}}
+            {{- toYaml (omit .Values.livenessProbe "enabled") | nindent 12 }}
+          {{- end }}
+
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            {{- toYaml (omit .Values.readinessProbe "enabled") | nindent 12 }}
+          {{- end }}
+
+          {{- if and .Values.startupProbe .Values.startupProbe.enabled }}
+          startupProbe:
+            {{- toYaml (omit .Values.startupProbe "enabled") | nindent 12 }}
+          {{- end }}
+
+          # Ресурсы — из values
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

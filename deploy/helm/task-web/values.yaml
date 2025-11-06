@@ -18,6 +18,41 @@ ingress:
   tls:
     - hosts: [task20251104.test.chernov.us]
       secretName: task-manager-tls
+env:
+  PORT: "3000"
+  HOST: "0.0.0.0"
+  NEXT_PUBLIC_API_URL: "/api"
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 10
+  periodSeconds: 15
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /
+    port: 3000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+  successThreshold: 1
+
+startupProbe:
+  enabled: false
+  httpGet:
+    path: /
+    port: 3000
+  failureThreshold: 30
+  periodSeconds: 5
+
 resources:
   requests: {cpu: 50m, memory: 64Mi}
   limits: {cpu: 300m, memory: 256Mi}
