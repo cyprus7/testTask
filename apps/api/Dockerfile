@@ -8,9 +8,13 @@ COPY package.json bun.lockb* ./
 # Install dependencies
 RUN bun install --frozen-lockfile --production
 
-# Copy source code
-COPY app/api/src ./app/api/src
+# Copy source code and configuration
 COPY tsconfig.json ./
+COPY tsconfig.build.json ./
+COPY index.ts ./
+COPY src ./src
+COPY drizzle ./drizzle
+COPY drizzle.config.ts ./drizzle.config.ts
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs && \
@@ -26,4 +30,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:3000/health || exit 1
 
-CMD ["bun", "run", "app/api/src/index.ts"]
+CMD ["sh", "-c", "bunx drizzle-kit migrate --config ./drizzle.config.ts && bun run index.ts"]

@@ -3,13 +3,14 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-        "dev": "bun run app/api/index.ts",
-        "start": "bun run app/api/index.ts",
+        "dev": "bun run index.ts",
+        "start": "bun run index.ts",
         "build": "tsc -p tsconfig.build.json"
     },
     "dependencies": {
         "elysia": "^1.1.0",
         "@elysiajs/cors": "^1.1.0",
+        "drizzle-kit": "^0.28.0",
         "drizzle-orm": "^0.33.0",
         "postgres": "^3.4.4",
         "redis": "^4.7.0",

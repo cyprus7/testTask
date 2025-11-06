@@ -6,7 +6,7 @@ This Task Manager API is built following **Clean Architecture** and **Domain-Dri
 
 ## Architecture Layers
 
-### 1. Domain Layer (`apps/api/app/api/src/domain/`)
+### 1. Domain Layer (`apps/api/src/domain/`)
 
 The innermost layer containing the core business logic and rules.
 
