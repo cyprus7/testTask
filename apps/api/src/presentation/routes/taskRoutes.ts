@@ -18,10 +18,35 @@ export const createTaskRoutes = (controller: TaskController) =>
       const ownerId = requireOwnerId(ctx);
       const validated = TaskQuerySchema.parse(ctx.query);
       const tasks = await controller.getTasks(ownerId, validated);
+      // Normalize date fields to ISO strings for the response schema
+      const normalized = tasks.map((task) => ({
+        ...task,
+        dueDate: task.dueDate ? (typeof task.dueDate === 'string' ? task.dueDate : task.dueDate.toISOString()) : null,
+        createdAt: task.createdAt ? (typeof task.createdAt === 'string' ? task.createdAt : task.createdAt.toISOString()) : '',
+        updatedAt: task.updatedAt ? (typeof task.updatedAt === 'string' ? task.updatedAt : task.updatedAt.toISOString()) : '',
+      }));
       return {
         success: true,
-        data: tasks,
+        data: normalized,
       };
+    }, {
+      // Describe the response shape for OpenAPI generation
+      response: {
+        200: t.Object({
+          success: t.Boolean(),
+          data: t.Array(t.Object({
+            id: t.String(),
+            ownerId: t.Number(),
+            title: t.String(),
+            description: t.Optional(t.Nullable(t.String())),
+            status: t.String(),
+            priority: t.String(),
+            dueDate: t.Optional(t.Nullable(t.String())),
+            createdAt: t.String(),
+            updatedAt: t.String(),
+          })),
+        }),
+      },
     })
     .get('/:id', async (ctx) => {
       const ownerId = requireOwnerId(ctx);

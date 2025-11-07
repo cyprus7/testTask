@@ -20,7 +20,7 @@ export const authMiddlewareForTasks = (app: Elysia) =>
     const bypass = process.env.TELEGRAM_AUTH_BYPASS === '1' || process.env.TELEGRAM_AUTH_BYPASS === 'true';
     if (!value || Number.isNaN(userId) || !Number.isSafeInteger(userId) || userId <= 0) {
       if (bypass) {
-        return {} as any;
+        return { userId: 42 };
       }
 
       throw new UnauthorizedError('Unauthorized');

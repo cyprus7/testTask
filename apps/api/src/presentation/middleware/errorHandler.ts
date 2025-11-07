@@ -4,7 +4,11 @@ import { ZodError } from 'zod';
 
 export const errorHandler = (app: Elysia) => {
   app.onError(({ error, set }) => {
+    // Print full error and stack when available to aid diagnostics in containers
     console.error('Error:', error);
+    if ((error as any)?.stack) {
+      console.error('Stack:', (error as any).stack);
+    }
 
     if (error instanceof AppError) {
       set.status = error.statusCode;
