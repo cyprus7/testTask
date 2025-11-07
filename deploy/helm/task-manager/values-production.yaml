@@ -1,7 +1,7 @@
 replicaCount: 2
 image:
   repository: ghcr.io/cyprus7/testtask/backend
-  tag: "59b18ac6d29e150acd0e31f633c0b0d71455cde2"
+  tag: "361843fc1f7aac64bebf84d861c7c29238f11c4e"
 imagePullSecrets:
   - name: regcred
 service:
