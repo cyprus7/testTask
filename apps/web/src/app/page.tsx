@@ -7,8 +7,10 @@ import { TelegramAuthRequestSchema } from "@shared/contracts/auth";
 type Task = {
   id: string;
   title: string;
+  description: string | null;
   status: string;
   priority: string;
+  dueDate: string | null;
 };
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "/api";
@@ -19,6 +21,12 @@ export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
   const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [newDueDate, setNewDueDate] = useState("");
+  const [newPriority, setNewPriority] = useState("medium");
+  const [activeTab, setActiveTab] = useState<"create" | "important" | "all" | "completed">(
+    "create",
+  );
   const [userId, setUserId] = useState<number | null>(null);
 
   const fetchTasks = useCallback(async (currentUserId: number) => {
@@ -96,6 +104,9 @@ export default function Home() {
         },
         body: JSON.stringify({
           title: newTitle.trim(),
+          description: newDescription.trim() ? newDescription.trim() : undefined,
+          dueDate: newDueDate ? new Date(newDueDate).toISOString() : undefined,
+          priority: newPriority,
         }),
       });
 
@@ -106,6 +117,9 @@ export default function Home() {
       }
 
       setNewTitle("");
+      setNewDescription("");
+      setNewDueDate("");
+      setNewPriority("medium");
       await fetchTasks(userId);
     } catch (err) {
       console.error(err);
@@ -169,66 +183,185 @@ export default function Home() {
     }
   };
 
+  const importantPriorities = new Set(["high", "urgent"]);
+
+  const activeTasks = tasks.filter((task) => task.status !== "completed");
+  const importantTasks = activeTasks.filter((task) =>
+    importantPriorities.has(task.priority),
+  );
+  const completedTasks = tasks.filter((task) => task.status === "completed");
+
+  const renderTaskList = (items: Task[]) => {
+    if (loading) {
+      return <p>Loading tasks…</p>;
+    }
+
+    if (items.length === 0) {
+      return <p>No tasks to display.</p>;
+    }
+
+    return (
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        {items.map((task) => {
+          const dueDateLabel = task.dueDate
+            ? new Date(task.dueDate).toLocaleString()
+            : null;
+
+          return (
+            <li
+              key={task.id}
+              style={{
+                border: "1px solid #ccc",
+                borderRadius: "8px",
+                padding: "0.75rem",
+                marginBottom: "0.75rem",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <div>
+                  <strong>{task.title}</strong>
+                  <div style={{ fontSize: "0.875rem", color: "#555" }}>
+                    Priority: {task.priority}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: "#555" }}>
+                    Status: {task.status}
+                  </div>
+                  {task.description && (
+                    <p style={{ marginTop: "0.5rem" }}>{task.description}</p>
+                  )}
+                  {dueDateLabel && (
+                    <div style={{ fontSize: "0.875rem", color: "#555" }}>
+                      Due: {dueDateLabel}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                  <button onClick={() => handleToggleStatus(task)}>
+                    {task.status === "completed" ? "Mark Pending" : "Mark Completed"}
+                  </button>
+                  <button onClick={() => handleDelete(task.id)}>Delete</button>
+                </div>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
   if (error) return <div>{error}</div>;
 
   return (
-    <main style={{ padding: "1rem", fontFamily: "sans-serif" }}>
+    <main style={{ padding: "1rem", paddingBottom: "4.5rem", fontFamily: "sans-serif" }}>
       <h1>Telegram Tasks Demo</h1>
       <p>Transport header demo using Telegram user scoped tasks.</p>
       {!ready && <p>Initializing…</p>}
       {userId && <p>Authenticated as Telegram user <strong>{userId}</strong>.</p>}
+      <section style={{ marginTop: "1rem", minHeight: "320px" }}>
+        {activeTab === "create" && (
+          <div>
+            <h2>Create Task</h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              <input
+                type="text"
+                value={newTitle}
+                onChange={(event) => setNewTitle(event.target.value)}
+                placeholder="Task title"
+                style={{ padding: "0.5rem" }}
+              />
+              <textarea
+                value={newDescription}
+                onChange={(event) => setNewDescription(event.target.value)}
+                placeholder="Description (optional)"
+                style={{ padding: "0.5rem", minHeight: "80px" }}
+              />
+              <input
+                type="datetime-local"
+                value={newDueDate}
+                onChange={(event) => setNewDueDate(event.target.value)}
+                placeholder="Due date"
+                style={{ padding: "0.5rem" }}
+              />
+              <label style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                <span>Priority</span>
+                <select
+                  value={newPriority}
+                  onChange={(event) => setNewPriority(event.target.value)}
+                  style={{ padding: "0.5rem" }}
+                >
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </label>
+              <button onClick={handleCreate} disabled={!newTitle.trim() || !userId}>
+                Create task
+              </button>
+            </div>
+          </div>
+        )}
 
-      <section style={{ marginTop: "1rem" }}>
-        <h2>Create Task</h2>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <input
-            type="text"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-            placeholder="Task title"
-            style={{ flex: 1, padding: "0.5rem" }}
-          />
-          <button onClick={handleCreate} disabled={!newTitle.trim() || !userId}>
-            Add
-          </button>
-        </div>
-      </section>
+        {activeTab === "important" && (
+          <div>
+            <h2>Important Tasks</h2>
+            {renderTaskList(importantTasks)}
+          </div>
+        )}
 
-      <section style={{ marginTop: "1.5rem" }}>
-        <h2>Your Tasks</h2>
-        {loading ? (
-          <p>Loading tasks…</p>
-        ) : tasks.length === 0 ? (
-          <p>No tasks yet. Create one above!</p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-            {tasks.map((task) => (
-              <li
-                key={task.id}
-                style={{
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  padding: "0.75rem",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between" }}>
-                  <span>
-                    <strong>{task.title}</strong>
-                    {" "}({task.priority}) – {task.status}
-                  </span>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <button onClick={() => handleToggleStatus(task)}>
-                      {task.status === "completed" ? "Mark Pending" : "Mark Completed"}
-                    </button>
-                    <button onClick={() => handleDelete(task.id)}>Delete</button>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+        {activeTab === "all" && (
+          <div>
+            <h2>All Active Tasks</h2>
+            {renderTaskList(activeTasks)}
+          </div>
+        )}
+
+        {activeTab === "completed" && (
+          <div>
+            <h2>Completed Tasks</h2>
+            {renderTaskList(completedTasks)}
+          </div>
         )}
       </section>
+
+      <nav
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "#f8f8f8",
+          borderTop: "1px solid #ddd",
+          display: "flex",
+          justifyContent: "space-around",
+          padding: "0.75rem 0",
+        }}
+      >
+        <button
+          onClick={() => setActiveTab("create")}
+          style={{ fontWeight: activeTab === "create" ? "bold" : "normal" }}
+        >
+          Create
+        </button>
+        <button
+          onClick={() => setActiveTab("important")}
+          style={{ fontWeight: activeTab === "important" ? "bold" : "normal" }}
+        >
+          Important
+        </button>
+        <button
+          onClick={() => setActiveTab("all")}
+          style={{ fontWeight: activeTab === "all" ? "bold" : "normal" }}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setActiveTab("completed")}
+          style={{ fontWeight: activeTab === "completed" ? "bold" : "normal" }}
+        >
+          Completed
+        </button>
+      </nav>
     </main>
   );
 }
