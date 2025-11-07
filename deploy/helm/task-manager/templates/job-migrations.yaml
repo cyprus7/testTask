@@ -2,17 +2,19 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "task-manager.fullname" . }}-migrations
+  # уникализируем имя по ревизии релиза
+  name: {{ include "task-manager.fullname" . }}-migrations-{{ .Release.Revision }}
   labels:
     {{- include "task-manager.labels" . | nindent 4 }}
     {{- with .Values.migrations.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   annotations:
-    {{- if .Values.migrations.hook }}
+    # запускаем как helm hook перед установкой/апгрейдом
     "helm.sh/hook": "pre-install,pre-upgrade"
-    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded"
-    {{- end }}
+    # удаляем и при успехе, и при падении, и перед созданием новой
+    "helm.sh/hook-delete-policy": "before-hook-creation,hook-succeeded,hook-failed"
+    "helm.sh/hook-weight": "0"
     {{- with .Values.migrations.annotations }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
