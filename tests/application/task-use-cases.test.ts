@@ -155,9 +155,13 @@ describe('Task use cases', () => {
     const updateTask = new UpdateTaskUseCase(repository, cache);
     const ownerId = 456;
 
-    await expect(
-      updateTask.execute(ownerId, 'missing-task', { title: 'Updated title' })
-    ).rejects.toBeInstanceOf(NotFoundError);
+    try {
+      await updateTask.execute(ownerId, 'missing-task', { title: 'Updated title' });
+      // If no error was thrown, fail the test
+      throw new Error('Expected NotFoundError to be thrown');
+    } catch (err) {
+      expect((err as Error).constructor).toBe(NotFoundError);
+    }
   });
 
   it('updates an existing task and invalidates related cache entries', async () => {
