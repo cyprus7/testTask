@@ -295,40 +295,50 @@ To consume the published image in Kubernetes, override the Helm chart `image.rep
 ```
 testTask/
 ├── apps/
-│   └── api/
-│       ├── app/
-│       │   └── api/
-│       │       └── src/
-│       │           ├── domain/               # Business entities and rules
-│       │           │   ├── entities/         # Domain entities
-│       │           │   ├── repositories/     # Repository interfaces
-│       │           │   └── value-objects/    # Value objects
-│       │           ├── application/          # Application business rules
-│       │           │   ├── dtos/            # Data Transfer Objects
-│       │           │   ├── interfaces/      # Service interfaces
-│       │           │   └── use-cases/       # Application use cases
-│       │           ├── infrastructure/       # External implementations
-│       │           │   ├── database/        # Database schema and connection
-│       │           │   ├── cache/           # Redis cache implementation
-│       │           │   ├── queue/           # Redis queue implementation
-│       │           │   └── repositories/    # Repository implementations
-│       │           ├── presentation/         # API layer
-│       │           │   ├── controllers/     # HTTP controllers
-│       │           │   ├── middleware/      # Middleware (error handling)
-│       │           │   └── routes/          # Route definitions
-│       │           ├── shared/              # Shared utilities
-│       │           │   ├── config/          # Configuration
-│       │           │   ├── errors/          # Custom error classes
-│       │           │   └── container.ts     # Dependency injection
-│       │           └── index.ts             # Application entry point
-│       ├── Dockerfile               # Docker image
-│       ├── package.json             # Dependencies and scripts
-│       ├── tsconfig.json            # TypeScript configuration
-│       └── .env                     # Environment variables
-├── docker-compose.yml        # Docker services
-├── drizzle.config.ts        # Drizzle configuration
-├── .env.example             # Environment variables template
-└── package.json             # Root dependencies and scripts
+│   ├── api/
+│   │   ├── src/
+│   │   │   ├── domain/               # Business entities and rules
+│   │   │   │   ├── entities/         # Domain entities
+│   │   │   │   ├── repositories/     # Repository interfaces
+│   │   │   │   └── value-objects/    # Value objects
+│   │   │   ├── application/          # Application business rules
+│   │   │   │   ├── dtos/             # Data Transfer Objects
+│   │   │   │   ├── interfaces/       # Service interfaces
+│   │   │   │   └── use-cases/        # Application use cases
+│   │   │   ├── infrastructure/       # External implementations
+│   │   │   │   ├── database/         # Database schema and connection
+│   │   │   │   ├── cache/            # Redis cache implementation
+│   │   │   │   ├── queue/            # Redis queue implementation
+│   │   │   │   └── repositories/     # Repository implementations
+│   │   │   ├── presentation/         # API layer
+│   │   │   │   ├── controllers/      # HTTP controllers
+│   │   │   │   ├── middleware/       # Middleware (error handling)
+│   │   │   │   └── routes/           # Route definitions
+│   │   │   ├── shared/               # Shared utilities
+│   │   │   │   ├── config/           # Configuration
+│   │   │   │   ├── errors/           # Custom error classes
+│   │   │   │   └── container.ts      # Dependency injection
+│   │   │   └── index.ts              # Application entry point
+│   │   ├── drizzle/                  # Migrations for API (e.g. 0001_init_tasks.sql, meta/)
+│   │   ├── Dockerfile                # Docker image for API
+│   │   ├── package.json              # Dependencies and scripts (API)
+│   │   └── tsconfig.json             # TypeScript configuration (API)
+│   ├── tg-bot/
+│   │   ├── Dockerfile                # Docker image for Telegram bot
+│   │   ├── package.json              # Dependencies and scripts (tg-bot)
+│   │   └── src/
+│   │       ├── main.ts
+│   │       ├── bot.update.ts
+│   │       └── observability/        # logging/otel/metrics
+│   └── web/
+│       ├── Dockerfile                # Docker image for web front-end
+│       ├── package.json              # Dependencies and scripts (web)
+│       └── src/
+│           └── app/                  # Next.js / front-end sources
+├── docker-compose.yml                # Docker services
+├── drizzle.config.ts                 # Drizzle configuration
+├── .env.example                      # Environment variables template
+└── package.json                      # Root dependencies and scripts
 ```
 
 ## 🔐 Environment Variables
