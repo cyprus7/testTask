@@ -4,6 +4,17 @@
 [![CD](https://github.com/cyprus7/testTask/actions/workflows/cd.yaml/badge.svg)](https://github.com/cyprus7/testTask/actions/workflows/cd.yaml)
 
 A backend task manager built with **Bun.js** and **Elysia.js** following **Domain-Driven Design (DDD)** and **Clean Architecture** principles.
+## ⚡ Fast Start
+
+1. Copy the example env file:
+```bash
+cp apps/api/.env.local.example apps/api/.env.local
+```
+
+2. Start Docker Compose:
+```bash
+docker compose up
+```
 
 ## 🏗️ Architecture
 
