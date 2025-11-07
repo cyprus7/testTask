@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/cyprus7/testtask/frontend
-  tag: "8ebe91f6d5cacc9ea7fc44e8921e1682423cd94a"
+  tag: "59b18ac6d29e150acd0e31f633c0b0d71455cde2"
   pullPolicy: IfNotPresent
 service:
   type: ClusterIP
